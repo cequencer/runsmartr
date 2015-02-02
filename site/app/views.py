@@ -7,12 +7,11 @@ import random
 import time
 import psycopg2
 import geopy.geocoders
-
 from flask import render_template, request
-from app import app
-import pymysql as mdb
 
+from app import app
 from runrouter import RunRouter
+
 rr = RunRouter()
 
 @app.route('/')
