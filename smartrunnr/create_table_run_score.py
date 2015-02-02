@@ -8,13 +8,19 @@ from runhere_queries import RunHereDB
 
 import pdb
 
-route_tables = ('routes_bayview', 'routes_bernal_heights',
-                'routes_chinatown',
-                'routes_crocker_amazon', 'routes_downtown_civic_center',
-                'routes_excelsior', 'routes_financial_district',
-                'routes_mission', 'routes_nob_hill', 'routes_north_beach',
-                'routes_potrero_hill', 'routes_russian_hill',
-                'routes_south_of_market', 'routes_visitacion_valley')
+route_tables = ('routes_bayview', 'routes_bernal_heights')
+
+# # Finished
+# route_tables = ()
+
+# # All
+# route_tables = ('routes_bayview', 'routes_bernal_heights',
+#                 'routes_chinatown',
+#                 'routes_crocker_amazon', 'routes_downtown_civic_center',
+#                 'routes_excelsior', 'routes_financial_district',
+#                 'routes_mission', 'routes_nob_hill', 'routes_north_beach',
+#                 'routes_potrero_hill', 'routes_russian_hill',
+#                 'routes_south_of_market', 'routes_visitacion_valley')
 
 def main():
     rh_db = RunHereDB()
