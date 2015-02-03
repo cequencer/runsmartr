@@ -10,7 +10,7 @@ import geopy.geocoders
 from flask import render_template, request
 
 from app import app
-from runrouter import RunRouter
+from smartrunnr.runrouter import RunRouter
 
 rr = RunRouter()
 

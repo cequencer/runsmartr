@@ -1,4 +1,5 @@
 supervisord.conf
+credentials.json
 .ipynb_checkpoints
 *.pyc
 cache

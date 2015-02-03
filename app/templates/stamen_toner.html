@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+   <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+   <link rel="stylesheet" href="https://rawgit.com/lvoogdt/Leaflet.awesome-markers/2.0/develop/dist/leaflet.awesome-markers.css">
+   <script src="https://rawgithub.com/lvoogdt/Leaflet.awesome-markers/2.0/develop/dist/leaflet.awesome-markers.js"></script>
+
+
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.Default.css">
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.css">
+   <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster-src.js"></script>
+   <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster.js"></script>
+
+   <link rel="stylesheet" href="http://birdage.github.io/Leaflet.awesome-markers/dist/leaflet.awesome.rotate.css">
+
+   
+   
+   
+   
+
+   <style>
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position:absolute;
+        top:0;
+        bottom:0;
+        right:0;
+        left:0;
+      }
+
+   </style>
+</head>
+
+<body>
+
+   <div class="folium-map" id="folium_a12df5900224481eab1fc7c56adcd32f" style="width: 600px; height: 600px"></div>
+
+   <script>
+
+      
+
+      var base_tile = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.jpg', {
+          maxZoom: 18,
+          attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
+      });
+
+      var baseLayer = {        
+        "Base Layer": base_tile
+      };
+
+      /*
+      addition of the wms layers
+      */ 
+
+      
+      
+      /*
+      addition of the tile layers
+      */
+      
+
+      /*
+      list of layers to be added
+      */ 
+      var layer_list = {
+      
+      };
+
+      /*
+      Creates the map and adds the selected layers
+      */
+      var map = L.map('folium_a12df5900224481eab1fc7c56adcd32f', {
+                                       center:[37.7858335422, -122.399254432],
+                                       zoom: 14,
+                                       layers: [base_tile]
+                                     });
+
+      L.control.layers(baseLayer, layer_list).addTo(map);
+
+      //cluster group
+      var clusteredmarkers = L.markerClusterGroup();
+      //section for adding clustered markers
+      
+      //add the clustered markers to the group anyway
+      map.addLayer(clusteredmarkers);
+
+      
+
+      
+      var circle_1 = L.circle([37.7720335, -122.3975077], 50, {
+                            color: 'red',
+                            fillColor: 'blue',
+                            fillOpacity: 1.0
+                            });
+      circle_1.bindPopup("start/finish");
+      map.addLayer(circle_1)
+      
+      var circle_2 = L.circle([37.782633, -122.4019328], 50, {
+                            color: 'blue',
+                            fillColor: 'blue',
+                            fillOpacity: 1.0
+                            });
+      circle_2.bindPopup("mile 1");
+      map.addLayer(circle_2)
+      
+      var circle_3 = L.circle([37.794666, -122.403139], 50, {
+                            color: 'blue',
+                            fillColor: 'blue',
+                            fillOpacity: 1.0
+                            });
+      circle_3.bindPopup("mile 2");
+      map.addLayer(circle_3)
+      
+      var circle_4 = L.circle([37.792258, -122.399763], 50, {
+                            color: 'blue',
+                            fillColor: 'blue',
+                            fillOpacity: 1.0
+                            });
+      circle_4.bindPopup("mile 3");
+      map.addLayer(circle_4)
+      
+      var circle_5 = L.circle([37.7813262, -122.3958596], 50, {
+                            color: 'blue',
+                            fillColor: 'blue',
+                            fillOpacity: 1.0
+                            });
+      circle_5.bindPopup("mile 4");
+      map.addLayer(circle_5)
+      
+
+      
+      var latLngs = [ [37.7720335, -122.3975077],  [37.7722396, -122.3978318],  [37.7723869, -122.3978194],  [37.7725873, -122.3977739],  [37.772812, -122.3976853],  [37.7730548, -122.397566],  [37.7732424, -122.3974466],  [37.7733675, -122.3973568],  [37.7735371, -122.3972025],  [37.7736781, -122.3970523],  [37.7743523, -122.3962155],  [37.7744975, -122.3961819],  [37.7753165, -122.3951045],  [37.7757892, -122.3944965],  [37.7761256, -122.3940664],  [37.7762045, -122.3941595],  [37.7762241, -122.3941841],  [37.7762524, -122.3942174],  [37.7762994, -122.3942729],  [37.7764146, -122.3941277],  [37.7764863, -122.3942183],  [37.7771005, -122.3949944],  [37.7772611, -122.3951962],  [37.7777178, -122.3957703],  [37.7783334, -122.3965439],  [37.7787522, -122.3970687],  [37.7791341, -122.3975501],  [37.7795658, -122.3980878],  [37.7799941, -122.3986337],  [37.7803575, -122.3990912],  [37.7807911, -122.399635],  [37.7812114, -122.4001585],  [37.7813871, -122.4003767],  [37.7815816, -122.4006212],  [37.7820253, -122.4011758],  [37.7824473, -122.4017033],  [37.782633, -122.4019328],  [37.7832509, -122.4027076],  [37.7838104, -122.4034059],  [37.7840738, -122.4037348],  [37.7844896, -122.4042562],  [37.784618, -122.4041567],  [37.7851231, -122.4035159],  [37.7855328, -122.40403],  [37.7863758, -122.4050788],  [37.7867495, -122.4046059],  [37.7876758, -122.4034364],  [37.7880296, -122.4029869],  [37.7880937, -122.4029056],  [37.7887064, -122.4021289],  [37.788802, -122.4020077],  [37.7888954, -122.4019945],  [37.7889635, -122.4019912],  [37.7889887, -122.4019923],  [37.78903, -122.4019941],  [37.789103, -122.401997],  [37.7891843, -122.4020137],  [37.790039, -122.40219],  [37.790969, -122.40238],  [37.791899, -122.402571],  [37.7923852, -122.4026711],  [37.792851, -122.402767],  [37.793774, -122.4029539],  [37.794216, -122.403047],  [37.794666, -122.403139],  [37.795066, -122.403221],  [37.7955322, -122.4033157],  [37.7964276, -122.4034989],  [37.796671, -122.4035487],  [37.7967257, -122.4035599],  [37.79706, -122.4036283],  [37.7973047, -122.4036784],  [37.797403, -122.4028966],  [37.7983213, -122.4030859],  [37.7984312, -122.4022267],  [37.799377, -122.4024194],  [37.7994498, -122.40185],  [37.7994498, -122.40185],  [37.7995257, -122.401256],  [37.7985809, -122.4010527],  [37.798391, -122.401013],  [37.7976573, -122.4008756],  [37.7967824, -122.4006932],  [37.7958676, -122.4004927],  [37.795448, -122.400413],  [37.7950365, -122.4003339],  [37.7945474, -122.4002266],  [37.7941293, -122.4001417],  [37.793693, -122.4000605],  [37.793209, -122.399959],  [37.792258, -122.399763],  [37.7914118, -122.3995894],  [37.791327, -122.399572],  [37.7912824, -122.3994515],  [37.7911377, -122.3992712],  [37.7910505, -122.3991626],  [37.7909545, -122.3990426],  [37.7905816, -122.3985765],  [37.7902388, -122.3981484],  [37.7902388, -122.3981484],  [37.7902063, -122.3981077],  [37.790062, -122.3979275],  [37.789771, -122.397564],  [37.7894604, -122.3971756],  [37.7893521, -122.397043],  [37.7889719, -122.3965667],  [37.7885423, -122.3960285],  [37.7880968, -122.3954718],  [37.7869619, -122.396913],  [37.7865841, -122.3964483],  [37.7859594, -122.39724],  [37.7855436, -122.3967193],  [37.7849051, -122.3959198],  [37.7843129, -122.3951781],  [37.7840676, -122.3948651],  [37.7835224, -122.3941697],  [37.7830916, -122.39362],  [37.7822033, -122.3947506],  [37.7813262, -122.3958596],  [37.7809058, -122.3963913],  [37.7805311, -122.3968643],  [37.7801002, -122.3963263],  [37.7797175, -122.3958485],  [37.7787522, -122.3970687],  [37.7783334, -122.3965439],  [37.7777178, -122.3957703],  [37.7772611, -122.3951962],  [37.7771005, -122.3949944],  [37.7764863, -122.3942183],  [37.7764059, -122.3943211],  [37.7763735, -122.3943135],  [37.7763424, -122.3943255],  [37.7762994, -122.3942729],  [37.7761062, -122.394534],  [37.7754097, -122.3954214],  [37.7746389, -122.3963664],  [37.7744975, -122.3961819],  [37.7743523, -122.3962155],  [37.7736781, -122.3970523],  [37.7735371, -122.3972025],  [37.7733675, -122.3973568],  [37.7732424, -122.3974466],  [37.7730548, -122.397566],  [37.772812, -122.3976853],  [37.7725873, -122.3977739],  [37.7723869, -122.3978194],  [37.7722396, -122.3978318],  [37.7720335, -122.3975077], ];
+var line_1 = L.polyline(latLngs,{
+color: 'blue',
+weight: 6,
+
+});
+      map.addLayer(line_1);
+      
+
+      
+
+      
+
+   </script>
+
+</body>

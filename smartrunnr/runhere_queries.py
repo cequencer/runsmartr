@@ -21,6 +21,13 @@ class RunHereDB:
 SELECT ST_AsGeoJSON(the_geom) FROM highways_buffered;""")
         return self.db_cur.fetchone()[0]
 
+    def fetch_valid_runs(self, table_name):
+        query = """
+SELECT mmf_id FROM %s, highways_buffered
+WHERE ST_Within(linestring, the_geom);""" % (table_name,)
+        self.db_cur.execute(query)
+        return self.db_cur.fetchall()
+
     def fetch_valid_run(self, offset):
         '''Get one valid run from the database.
         Return:  (centroid GeoJSON, linestring GeoJSON)
@@ -97,3 +104,12 @@ SELECT ST_Distance(point_1, point_2) FROM
     (SELECT geom::geography AS point_2 FROM nodes WHERE id = '%s') AS g_2;""",
         (points[0], points[1]))
         return self.db_cur.fetchall()
+
+    def update_stats_mmf_score(self, nearest_nodes):
+        nearest_nodes_string = ', '.join("'"+('%d' % id)+"'"
+            for id in nearest_nodes)
+        query = """
+UPDATE nodes_highways_stats SET mmf_score = mmf_score + 1
+WHERE id IN (%s);""" % nearest_nodes_string
+        self.db_cur.execute(query)
+        self.db_conn.commit()
