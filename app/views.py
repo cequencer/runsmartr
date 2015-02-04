@@ -14,12 +14,7 @@ from app.smartrunnr.runrouter import RunRouter
 rr = RunRouter()
 
 @app.route('/')
-@app.route("/index")
-def cities_page_fancy():
-    cities = []
-    return render_template('cities.html', cities=cities)
-
-@app.route('/input')
+@app.route('/index')
 def cities_input():
     return render_template("input.html")
 

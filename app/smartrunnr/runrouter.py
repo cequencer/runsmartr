@@ -58,8 +58,8 @@ class RunRouter:
         count = 0
         while new_cost >= self.current_cost:
             count += 1
-            new_nodes = self.step_trial(self.nodes,
-                                        threshold=self.current_cost/4.)
+            new_nodes = self.step_trial(self.nodes)#,
+#                                        threshold=self.current_cost/4.)
             result, new_route = self.get_route(new_nodes)
             if result == 'success':
                 new_cost = self.get_cost(new_route)
