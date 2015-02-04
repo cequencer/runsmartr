@@ -1,7 +1,7 @@
 import json
-from pyroutelib2.route import Router
-from pyroutelib2.loadOsm import LoadOsm
-import runhere_queries as rh
+from route import Router
+from routing_queries import RoutingDB
+from runhere_queries import RunHereDB
 import folium
 import geopy.geocoders
 from credentials import cred
@@ -13,15 +13,14 @@ class RunRouter:
     '''
 
     def __init__(self):
-        self.rh_db = rh.RunHereDB()
-        self.data = LoadOsm('foot')
-        # self.data.loadOsm('../osm/san-francisco_california.osm')
-        self.router = Router(self.data)
+        self.rh_db = RunHereDB()
+        self.data = RoutingDB()
+        self.router = Router()
         self.current_route = [[], [], []]
         self.nodes = [0, 0, 0]
         self.geocoder = geopy.geocoders.GoogleV3(**cred['google'])
 
-    def do_route(self, address, distance, threshold=400):
+    def do_route(self, address, distance, threshold=1600):
         ''' Find a route
         - Threshold in meters for settling on a route
         - Return route as a Folium map
@@ -31,35 +30,21 @@ class RunRouter:
             self.step()
         print 'route found within threshold'
             
-    def initialize_search(self, address, distance, threshold=1000):
+    def initialize_search(self, address, distance, threshold=400.):
         '''Initialize Search
         - Get control points
         - Compute first route
         - Store this route as minimum
         '''
         self.distance = distance
-        self.nodes[0] = self.data.findNode(
-            *self.latlon_from_address(address))
-        # node_1 = self.rh_db.fetch_point_within_threshold(
-        #     self.nodes[0], threshold)
-        # self.nodes[1] = self.data.findNode(
-        #     *self.rh_db.fetch_node_latlon(node_1))
-        self.nodes[1] = self.data.findNode(
-            *self.latlon_from_address('ferry building marketplace, san francisco'))
-        # node_2 = self.rh_db.fetch_point_within_threshold(
-        #     self.nodes[0], threshold)
-        # self.nodes[2] = self.data.findNode(
-        #     *self.rh_db.fetch_node_latlon(node_2))
-        self.nodes[2] = self.data.findNode(
-            *self.latlon_from_address('beale and market, san francisco'))
+        self.nodes[0] = self.data.find_rnode_address(address)
+        self.nodes[1] = self.data.rand_rnode_within_m(
+            self.nodes[0], threshold)
+        self.nodes[2] = self.data.rand_rnode_within_m(
+            self.nodes[0], threshold)
         self.current_route = self.get_route(self.nodes)
                 
-    def latlon_from_address(self, address):
-        location = self.geocoder.geocode(address)
-        latlon = [location.latitude, location.longitude]
-        return latlon
-
-    def step(self, threshold=1000):
+    def step(self, threshold=400.):
         ''' Step control points stochastically within threshold
         - Update control points
         - Update route (ordered list of nodes)
@@ -78,16 +63,12 @@ class RunRouter:
         self.nodes = new_nodes
         self.current_route = new_route
             
-    def step_trial(self, nodes_old, threshold=1000):
+    def step_trial(self, nodes_old, threshold=400.):
         nodes = [nodes_old[0], 0, 0]
-        node_1 = self.rh_db.fetch_point_within_threshold(
+        nodes[1] = self.data.rand_rnode_within_m(
             self.nodes[1], threshold)
-        nodes[1] = self.data.findNode(
-            *self.rh_db.fetch_node_latlon(node_1))
-        node_2 = self.rh_db.fetch_point_within_threshold(
+        nodes[2] = self.data.rand_rnode_within_m(
             self.nodes[2], threshold)
-        nodes[2] = self.data.findNode(
-            *self.rh_db.fetch_node_latlon(node_2))
         return nodes
 
     def get_route(self, nodes):
@@ -95,16 +76,13 @@ class RunRouter:
         '''
         route = [[], [], []]
         result, route[0] = self.router.doRoute(
-            nodes[0],
-            nodes[1])
+            nodes[0], nodes[1])
         print result
         result, route[1] = self.router.doRoute(
-            nodes[1],
-            nodes[2])
+            nodes[1], nodes[2])
         print result
         result, route[2] = self.router.doRoute(
-            nodes[2],
-            nodes[0])
+            nodes[2], nodes[0])
         print result
         return route
 
@@ -125,7 +103,8 @@ class RunRouter:
     def get_segment_length(self, segment):
         seg_dist = 0.
         for n in range(len(segment)-1):
-            seg_dist += self.rh_db.get_dist(segment[n:n+2])[0][0]
+            seg_dist += self.data.distance(segment[0],
+                                           segment[1])
         return seg_dist
 
     def get_centroid(self):
@@ -183,20 +162,12 @@ class RunRouter:
     def folium_add_segment(self, segment, color):
         run_line = []
         latlon_curr = self.rh_db.fetch_node_latlon(segment[0])
-        # self.run_map.circle_marker(location=latlon_curr,
-        #                            radius=10, line_color=color,
-        #                            fill_color=color)
         run_line.append(latlon_curr)
         latlon_last = latlon_curr
         for id in segment[1:]:
             latlon_curr = self.rh_db.fetch_node_latlon(id)
-            # self.run_map.circle_marker(location=latlon_curr,
-            #                            radius=10, line_color=color,
-            #                            fill_color=color)
             run_line.append(latlon_curr)
-            # self.run_map.line(locations=[latlon_last, latlon_curr],
-            #                   line_color=color, line_weight=7,
-            #                   line_)
             latlon_last = latlon_curr
         self.run_map.line(locations=run_line,
-                          line_color=color, line_weight=6)
+                          line_color=color, line_weight=6,
+                          line_opacity=0.9)

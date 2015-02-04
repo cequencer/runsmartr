@@ -29,6 +29,8 @@ import sys
 import math 
 from routing_queries import RoutingDB
 
+import pdb
+
 class Router:
 
   def __init__(self):
@@ -56,6 +58,7 @@ class Router:
     # Limit for how long it will search
     count = 0
     while count < 1000000:
+      # pdb.set_trace()
       count = count + 1
       try:
         nextItem = self.queue.pop(0)
@@ -69,6 +72,7 @@ class Router:
       if x == end:
         # Found the end node - success
         routeNodes = [int(i) for i in nextItem['nodes'].split(",")]
+        print count
         return('success', routeNodes)
       closed.append(x)
       try:

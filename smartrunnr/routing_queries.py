@@ -2,6 +2,7 @@ from credentials import cred
 import psycopg2
 import json
 import geopy.geocoders
+from random import random as rnd
 
 class RoutingDB:
 
@@ -9,6 +10,31 @@ class RoutingDB:
         self.db_conn = psycopg2.connect(**cred['db'])
         self.db_cur = self.db_conn.cursor()
         self.geocoder = geopy.geocoders.GoogleV3(**cred['google'])
+
+    def rand_rnode_within_m(self, rnode, m):
+        query = """
+SELECT id FROM
+    (SELECT ST_Translate(point, %f, %f) AS search_point
+     FROM rnodes WHERE id = '%d') AS rnode,
+    rnodes
+ORDER BY search_point <-> point LIMIT 1;""" % ((m-m/2.)*rnd()/89012.,
+                                               (m-m/2.)*rnd()/110978.,
+                                               rnode)
+        self.db_cur.execute(query)
+        return self.db_cur.fetchall()[0][0]
+
+    def rand_rnode_within_threshold(self, rnode, threshold):
+        query = """
+SELECT id FROM
+    (SELECT id FROM
+        rnodes,
+        (SELECT point AS origin FROM rnodes WHERE id = '%d')
+            AS nodes_origin
+    ORDER BY origin <-> point
+    LIMIT %d) AS knn
+ORDER BY RANDOM() LIMIT 1;""" % (rnode, threshold)
+        self.db_cur.execute(query)
+        return self.db_cur.fetchall()[0][0]
 
     def find_rnode(self, rnode):
         ''' Find nearest routing node
@@ -50,3 +76,6 @@ SELECT ST_Distance(point_1::geography, point_2::geography) FROM
     def routing(self, node):
         ''' Return list of edges for <node>
         '''
+        query = "SELECT edges FROM routing WHERE node = '%d'" % node
+        self.db_cur.execute(query)
+        return self.db_cur.fetchall()[0][0]
