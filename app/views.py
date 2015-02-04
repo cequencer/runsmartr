@@ -9,7 +9,7 @@
 # import geopy.geocoders
 from flask import render_template, request
 from app import app
-from smartrunnr.runrouter import RunRouter
+from app.smartrunnr.runrouter import RunRouter
 
 rr = RunRouter()
 
@@ -27,7 +27,7 @@ def cities_input():
 def cities_output():
     address = request.args.get('ADDR')
     distance = int(request.args.get('DIST'))
-    rr.do_route('355 berry st, san francisco', distance*1600)
+    rr.do_route(address, distance*1600)
     rr.update_folium_map()
     rr.run_map.create_map(path='app/templates/stamen_toner.html')
     return render_template("output.html", address=address,

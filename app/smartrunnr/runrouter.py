@@ -17,6 +17,7 @@ class RunRouter:
         self.data = RoutingDB(intersections_only=intersections_only)
         self.router = Router(intersections_only=intersections_only)
         self.current_route = [[], [], []]
+        self.old_route = [[], [], []]
         self.nodes = [0, 0, 0]
         self.geocoder = geopy.geocoders.GoogleV3(**cred['google'])
 
@@ -39,10 +40,12 @@ class RunRouter:
         '''
         self.distance = distance
         self.nodes[0] = self.data.find_rnode_address(address)
-        self.nodes[1] = self.data.rand_rnode_within_m(
-            self.nodes[0], threshold)
-        self.nodes[2] = self.data.rand_rnode_within_m(
-            self.nodes[0], threshold)
+        self.nodes[1] = self.data.find_rnode_address('ferry building, san francisco')
+        self.nodes[2] = self.data.find_rnode_address('1st and marker, san francisco')
+        # self.nodes[1] = self.data.rand_rnode_within_m(
+        #     self.nodes[0], threshold)
+        # self.nodes[2] = self.data.rand_rnode_within_m(
+        #     self.nodes[0], threshold)
         result, self.current_route = self.get_route(self.nodes)
                 
     def step(self, threshold=400.):
@@ -52,16 +55,23 @@ class RunRouter:
         - Loop until found new route with reduced cost
         '''
         new_cost = self.current_cost
+        count = 0
         while new_cost >= self.current_cost:
+            count += 1
             new_nodes = self.step_trial(self.nodes,
                                         threshold=self.current_cost/4.)
             result, new_route = self.get_route(new_nodes)
             if result == 'success':
                 new_cost = self.get_cost(new_route)
             print 'try step, new cost = %f' % new_cost
+            if count > 10:
+                # self.current_route = self.old_route
+                # return
+                new_cost = 0  # Give up and output current route
         self.current_cost = new_cost
         print 'step'
         self.nodes = new_nodes
+        self.old_route = self.current_route
         self.current_route = new_route
             
     def step_trial(self, nodes_old, threshold=400.):
