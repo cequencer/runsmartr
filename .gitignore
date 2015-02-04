@@ -1,4 +1,4 @@
-supervisord.conf
+smartrunnr.conf
 credentials.json
 .ipynb_checkpoints
 *.pyc
