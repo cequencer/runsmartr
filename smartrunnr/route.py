@@ -27,36 +27,16 @@
 #------------------------------------------------------
 import sys
 import math 
-# ********************************************************************
-try:
-  from .loadOsm import *
-except (ImportError, SystemError):
-  from loadOsm import *
+from routing_queries import RoutingDB
 
 class Router:
 
-  def __init__(self, data):
-# ********************************************************************
-#  Write a new loadOsm module that interfaces with my DB
-# ********************************************************************
-    self.data = data
+  def __init__(self):
+    self.data = RoutingDB()
 
   def distance(self,n1,n2):
-# ********************************************************************
-#  Can just use ST_Distance() in PostGIS to replace this whole
-#  function.
-# ********************************************************************
     """Calculate distance between two nodes"""
-    lat1 = self.data.rnodes[n1][0]
-    lon1 = self.data.rnodes[n1][1]
-    lat2 = self.data.rnodes[n2][0]
-    lon2 = self.data.rnodes[n2][1]
-    # TODO: projection issues
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    dist2 = dlat * dlat + dlon * dlon
-    dist = math.sqrt(dist2)
-    return(dist)
+    return self.data.distance(n1, n2)
   
   def doRoute(self,start,end):
     """Do the routing"""
@@ -68,9 +48,8 @@ class Router:
     blankQueueItem = {'end':-1,'distance':0,'nodes':str(start)}
 
     try:
-# ********************************************************************
-      for i, weight in self.data.routing[start].items():
-        self.addToQueue(start,i, blankQueueItem, weight)
+      for i in self.data.routing(start):
+        self.addToQueue(start,i, blankQueueItem)
     except KeyError:
       return('no_such_node',[])
 
@@ -93,10 +72,9 @@ class Router:
         return('success', routeNodes)
       closed.append(x)
       try:
-# ********************************************************************
-        for i, weight in self.data.routing[x].items():
+        for i in self.data.routing(x):
           if not i in closed:
-            self.addToQueue(x,i,nextItem, weight)
+            self.addToQueue(x,i,nextItem)
       except KeyError:
         pass
     else:
@@ -105,16 +83,6 @@ class Router:
   def addToQueue(self,start,end, queueSoFar, weight = 1):
     """Add another potential route to the queue"""
 
-    # getArea() checks that map data is available around the end-point,
-    # and downloads it if necessary
-    #
-    # TODO: we could reduce downloads even more by only getting data around
-    # the tip of the route, rather than around all nodes linked from the tip
-# ********************************************************************
-    end_pos = self.data.rnodes[end]
-# ********************************************************************
-    self.data.getArea(end_pos[0], end_pos[1])
-    
     # If already in queue, ignore
     for test in self.queue:
       if test['end'] == end:
@@ -164,4 +132,3 @@ if __name__ == "__main__":
       print("%d: %f,%f" % (i,node[0],node[1]))
   else:
     print("Failed (%s)" % result)
-

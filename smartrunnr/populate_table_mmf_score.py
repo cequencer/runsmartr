@@ -7,12 +7,13 @@ from credentials import cred
 import psycopg2
 from runhere_queries import RunHereDB
 
-route_tables = ('routes_financial_district',)
+route_tables = ('routes_nob_hill',)
 
 # # Finished
 # route_tables = ('routes_bayview', 'routes_bernal_heights',
 #                 'routes_chinatown', 'routes_crocker_amazon',
-#                 'routes_downtown_civic_center', 'routes_excelsior')
+#                 'routes_downtown_civic_center', 'routes_excelsior',
+#                 'routes_financial_district', 'routes_mission')
 
 # # All
 # route_tables = ('routes_bayview', 'routes_bernal_heights',
