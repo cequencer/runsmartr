@@ -5,7 +5,6 @@ import json
 class RunHereDB:
 
     def __init__(self):
-        print cred
         self.db_conn = psycopg2.connect(**cred['db'])
         self.db_cur = self.db_conn.cursor()
 
