@@ -33,17 +33,21 @@ import pdb
 
 class Router:
 
-  def __init__(self):
-    self.data = RoutingDB()
+  def __init__(self, intersections_only=True):
+    self.closed = []
+    self.data = RoutingDB(intersections_only=intersections_only)
 
   def distance(self,n1,n2):
     """Calculate distance between two nodes"""
     return self.data.distance(n1, n2)
   
-  def doRoute(self,start,end):
+  def doRoute(self,start,end,keep_closed=False):
     """Do the routing"""
     self.searchEnd = end
-    closed = [start]
+    if keep_closed:
+      self.closed.append(start)
+    else:
+      self.closed = [start]
     self.queue = []
     
     # Start by queueing all outbound links from the start node
@@ -57,7 +61,7 @@ class Router:
 
     # Limit for how long it will search
     count = 0
-    while count < 1000000:
+    while count < 1000:
       # pdb.set_trace()
       count = count + 1
       try:
@@ -67,17 +71,16 @@ class Router:
         # TODO: return partial route?
         return('no_route',[])
       x = nextItem['end']
-      if x in closed:
+      if x in self.closed:
         continue
       if x == end:
         # Found the end node - success
         routeNodes = [int(i) for i in nextItem['nodes'].split(",")]
-        print count
         return('success', routeNodes)
-      closed.append(x)
+      self.closed.append(x)
       try:
         for i in self.data.routing(x):
-          if not i in closed:
+          if not i in self.closed:
             self.addToQueue(x,i,nextItem)
       except KeyError:
         pass

@@ -12,21 +12,22 @@ class RunRouter:
       street/path graph in the Open Streetmaps database
     '''
 
-    def __init__(self):
+    def __init__(self, intersections_only=True):
         self.rh_db = RunHereDB()
-        self.data = RoutingDB()
-        self.router = Router()
+        self.data = RoutingDB(intersections_only=intersections_only)
+        self.router = Router(intersections_only=intersections_only)
         self.current_route = [[], [], []]
         self.nodes = [0, 0, 0]
         self.geocoder = geopy.geocoders.GoogleV3(**cred['google'])
 
-    def do_route(self, address, distance, threshold=1600):
+    def do_route(self, address, distance, threshold=400.):
         ''' Find a route
         - Threshold in meters for settling on a route
         - Return route as a Folium map
         '''
+        self.current_cost = distance
         self.initialize_search(address, distance)
-        while self.get_cost(self.current_route) > threshold:
+        while self.current_cost > threshold:
             self.step()
         print 'route found within threshold'
             
@@ -42,7 +43,7 @@ class RunRouter:
             self.nodes[0], threshold)
         self.nodes[2] = self.data.rand_rnode_within_m(
             self.nodes[0], threshold)
-        self.current_route = self.get_route(self.nodes)
+        result, self.current_route = self.get_route(self.nodes)
                 
     def step(self, threshold=400.):
         ''' Step control points stochastically within threshold
@@ -50,15 +51,15 @@ class RunRouter:
         - Update route (ordered list of nodes)
         - Loop until found new route with reduced cost
         '''
-        current_route = self.current_route
-        current_cost = self.get_cost(current_route)
-        new_cost = current_cost
-        while new_cost >= current_cost:
+        new_cost = self.current_cost
+        while new_cost >= self.current_cost:
             new_nodes = self.step_trial(self.nodes,
-                                        threshold=threshold)
-            new_route = self.get_route(new_nodes)
-            new_cost = self.get_cost(new_route)
-            print 'try step'
+                                        threshold=self.current_cost/4.)
+            result, new_route = self.get_route(new_nodes)
+            if result == 'success':
+                new_cost = self.get_cost(new_route)
+            print 'try step, new cost = %f' % new_cost
+        self.current_cost = new_cost
         print 'step'
         self.nodes = new_nodes
         self.current_route = new_route
@@ -76,15 +77,18 @@ class RunRouter:
         '''
         route = [[], [], []]
         result, route[0] = self.router.doRoute(
-            nodes[0], nodes[1])
-        print result
+            nodes[0], nodes[1], keep_closed=False)
+        if result != 'success':
+            return 'no_route', []
         result, route[1] = self.router.doRoute(
-            nodes[1], nodes[2])
-        print result
+            nodes[1], nodes[2], keep_closed=False)
+        if result != 'success':
+            return 'no_route', []
         result, route[2] = self.router.doRoute(
-            nodes[2], nodes[0])
-        print result
-        return route
+            nodes[2], nodes[0], keep_closed=False)
+        if result != 'success':
+            return 'no_route', []
+        return 'success', route
 
     def get_cost(self, route):
         ''' Compute cost function for current state in SGD search

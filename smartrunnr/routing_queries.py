@@ -4,9 +4,17 @@ import json
 import geopy.geocoders
 from random import random as rnd
 
+import pdb
+
 class RoutingDB:
 
-    def __init__(self):
+    def __init__(self, intersections_only=False):
+        if intersections_only:
+            self.rnodes_table = 'rnodes_intersections'
+            self.routing_table = 'routing_intersections'
+        else:
+            self.rnodes_table = 'rnodes'
+            self.routing_table = 'routing'
         self.db_conn = psycopg2.connect(**cred['db'])
         self.db_cur = self.db_conn.cursor()
         self.geocoder = geopy.geocoders.GoogleV3(**cred['google'])
@@ -15,11 +23,12 @@ class RoutingDB:
         query = """
 SELECT id FROM
     (SELECT ST_Translate(point, %f, %f) AS search_point
-     FROM rnodes WHERE id = '%d') AS rnode,
-    rnodes
+     FROM %s WHERE id = '%d') AS rnode,
+    %s
 ORDER BY search_point <-> point LIMIT 1;""" % ((m-m/2.)*rnd()/89012.,
                                                (m-m/2.)*rnd()/110978.,
-                                               rnode)
+                                               self.rnodes_table, rnode,
+                                               self.rnodes_table)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
@@ -27,12 +36,12 @@ ORDER BY search_point <-> point LIMIT 1;""" % ((m-m/2.)*rnd()/89012.,
         query = """
 SELECT id FROM
     (SELECT id FROM
-        rnodes,
-        (SELECT point AS origin FROM rnodes WHERE id = '%d')
+        %s,
+        (SELECT point AS origin FROM %s WHERE id = '%d')
             AS nodes_origin
     ORDER BY origin <-> point
     LIMIT %d) AS knn
-ORDER BY RANDOM() LIMIT 1;""" % (rnode, threshold)
+ORDER BY RANDOM() LIMIT 1;""" % (self.rnodes_table, self.rnodes_table, rnode, threshold)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
@@ -41,9 +50,9 @@ ORDER BY RANDOM() LIMIT 1;""" % (rnode, threshold)
         '''
         query = """
 SELECT id FROM
-    (SELECT point AS search_point FROM rnodes WHERE id = '%d') AS rnode,
-    rnodes
-ORDER BY search_point <-> point LIMIT 1;"""
+    (SELECT point AS search_point FROM %s WHERE id = '%d') AS rnode,
+    %s
+ORDER BY search_point <-> point LIMIT 1;""" % (self.rnodes_table, rnode, self.rnodes_table)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
@@ -58,8 +67,8 @@ ORDER BY search_point <-> point LIMIT 1;"""
         ''' Find nearest routing node to (<lat>, <lon>)
         '''
         query = """
-SELECT id FROM rnodes
-ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326) LIMIT 1;""" % (lon, lat)
+SELECT id FROM %s
+ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326) LIMIT 1;""" % (self.rnodes_table, lon, lat)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
@@ -68,14 +77,14 @@ ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326) LIMIT 1;""" % (lon, la
         '''
         query = """
 SELECT ST_Distance(point_1::geography, point_2::geography) FROM
-    (SELECT point AS point_1 FROM rnodes WHERE id = '%d') AS rnode_1,
-    (SELECT point AS point_2 FROM rnodes WHERE id = '%d') AS rnode_2;""" % (n1, n2)
+    (SELECT point AS point_1 FROM %s WHERE id = '%d') AS rnode_1,
+    (SELECT point AS point_2 FROM %s WHERE id = '%d') AS rnode_2;""" % (self.rnodes_table, n1, self.rnodes_table, n2)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
     def routing(self, node):
         ''' Return list of edges for <node>
         '''
-        query = "SELECT edges FROM routing WHERE node = '%d'" % node
+        query = "SELECT edges FROM %s WHERE node = '%d'" % (self.routing_table, node)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
