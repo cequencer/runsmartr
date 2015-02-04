@@ -1,12 +1,9 @@
 from runhere_queries import RunHereDB
 
-import pdb
-
 def parse_osm():
     rh_db = RunHereDB()
     foot_ways = ('primary','secondary','tertiary','unclassified','minor',
                  'cycleway','residential', 'track','service','footway','steps')
-    ways = get_foot_ways(rh_db, foot_ways)
     count = 1
     nways = len(ways)
     for way in get_foot_ways(rh_db, foot_ways):
