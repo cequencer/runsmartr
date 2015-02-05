@@ -40,12 +40,12 @@ class RunRouter:
         '''
         self.distance = distance
         self.nodes[0] = self.data.find_rnode_address(address)
-        self.nodes[1] = self.data.find_rnode_address('ferry building, san francisco')
-        self.nodes[2] = self.data.find_rnode_address('1st and marker, san francisco')
-        # self.nodes[1] = self.data.rand_rnode_within_m(
-        #     self.nodes[0], threshold)
-        # self.nodes[2] = self.data.rand_rnode_within_m(
-        #     self.nodes[0], threshold)
+        # self.nodes[1] = self.data.find_rnode_address('ferry building, san francisco')
+        # self.nodes[2] = self.data.find_rnode_address('1st and marker, san francisco')
+        self.nodes[1] = self.data.rand_rnode_within_m(
+            self.nodes[0], threshold)
+        self.nodes[2] = self.data.rand_rnode_within_m(
+            self.nodes[0], threshold)
         result, self.current_route = self.get_route(self.nodes)
                 
     def step(self, threshold=400.):

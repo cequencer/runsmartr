@@ -1,28 +1,10 @@
 #!/usr/bin/env python
 
-import re
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.collections import PatchCollection
-import matplotlib.font_manager as fm
-from mpl_toolkits.basemap import Basemap
-import shapely.ops
-import shapely.wkt
 from shapely.geometry import Point, LineString
-from shapely.prepared import prep
-from descartes import PolygonPatch
-import fiona
-from itertools import chain
 import requests
 import json
-import random
-import time
 import psycopg2
-
 from credentials import cred
-
-import pdb
 
 def main():
     # Use get_mmf_token.py to get a new authorization if necessary
@@ -30,16 +12,16 @@ def main():
                'Authorization': 'Bearer b1b0e46c53ec8bbb2c8cebdcd9d2d765734108b1',
                'Content-Type': 'application/json'}
     # Get list of relevant route IDs
-    conn = psycopg2.connect(dbname='runhere', user='andy', password='po9uwe5')
+    conn = psycopg2.connect(**cred['db'])
     cur = conn.cursor()
     cur.execute("""
 SELECT mmf_id FROM mmf_routes, neighborhoods
-WHERE ST_Within(point, polygon) AND name = 'Russian Hill';""")
+WHERE ST_Within(point, polygon) AND name = 'Marina';""")
     route_IDs = [ el[0] for el in cur.fetchall() ]
     # Loop through these routes, fetching each one
     count = 0
     for id in route_IDs:
-        cur.execute("SELECT * FROM routes_russian_hill WHERE mmf_id = %s;",
+        cur.execute("SELECT * FROM routes_marina WHERE mmf_id = %s;",
                     (id,))
         if cur.fetchall() == []:
             # Call the mapmyrun API for a lat,long and get some route start points
@@ -55,7 +37,7 @@ WHERE ST_Within(point, polygon) AND name = 'Russian Hill';""")
                 # Insert into database table
                 linestring = 'ST_GeomFromText(%s, 4326)' % (route_linestring.wkt)
                 cur.execute("""
-INSERT INTO routes_russian_hill (mmf_id, linestring)
+INSERT INTO routes_marina (mmf_id, linestring)
 VALUES (%s,ST_GeomFromText(%s,4326));""", (id, route_linestring.wkt))
                 conn.commit()
                 print 'done with ID %d (%d of %d)' % (id, count, len(route_IDs))
