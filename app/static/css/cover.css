@@ -116,8 +116,27 @@ body {
     padding: 10px 20px;
     font-weight: bold;
 }
-.input {
-    margin-bottom: 20px;
+ul.input {
+    margin: 0;
+    padding: 0;
+}
+.input > li {
+    margin: 0px 0px 20px 0px;
+    display: inline-block;
+}
+.input > li + li {
+    margin-left: 40px;
+}
+.input > li > input {
+    color: #000;
+}
+ul.inputunits {
+    margin: 0;
+    padding: 0;
+}
+.inputunits > li {
+    margin: 0;
+    display: inline-block;
 }
 
 

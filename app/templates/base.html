@@ -46,9 +46,17 @@
 	    <!-- Form to input run parameters -->
 	    <form action="" method="post" name="input">
 	      {{ form.hidden_tag() }}
-	      <p class="input">
-		Start Address: {{ form.address(size=40) }}
-	      </p>
+	      <ul class="input">
+		<li>Start Address: {{ form.address(size=10) }}</li>
+		<li>Distance: {{ form.distance(size=4) }}</li>
+		<li>
+		  <ul class="inputunits">
+		    {% for subfield in form.units %}
+		    <li>{{ subfield }} {{ subfield.label }}</li>
+		    {% endfor %}
+		  </ul>
+		</li>
+	      </ul>
 	    </form>
 
             <p class="lead">
