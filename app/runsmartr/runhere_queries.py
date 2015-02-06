@@ -105,11 +105,32 @@ SELECT ST_Distance(point_1, point_2) FROM
         (points[0], points[1]))
         return self.db_cur.fetchall()
 
-    def update_stats_mmf_score(self, nearest_nodes):
+    def already_done(mmf_id):
+        ''' Check if the route has already been tallied.
+        '''
+        query = "SELECT * FROM mmf_routes_nodes WHERE mmf_id = %d" % mmf_id
+        self.db_cur.execute(query)
+        return self.db_cur.fetchall() != []
+
+    def update_stats_mmf_score(self, nearest_nodes, mmf_id):
         nearest_nodes_string = ', '.join("'"+('%d' % id)+"'"
             for id in nearest_nodes)
         query = """
-UPDATE nodes_highways_stats SET mmf_score = mmf_score + 1
+UPDATE nodes_highways_mmf_routes SET route_count = route_count + 1
 WHERE id IN (%s);""" % nearest_nodes_string
+        self.db_cur.execute(query)
+        self.db_conn.commit()
+        query = """
+UPDATE nodes_highways_mmf_routes SET routes = routes || '{%d}'
+WHERE id IN (%s);""" % (mmf_id, nearest_nodes_string)
+        self.db_cur.execute(query)
+        self.db_conn.commit()
+
+    def update_stats_route_nodes(self, mmf_id, nearest_nodes):
+        nearest_nodes_string = '{' + ', '.join(('%d' % id)
+            for id in nearest_nodes) + '}'
+        query = """
+INSERT INTO mmf_routes_nodes
+VALUES (%d, %s);""" % (mmf_id, nearest_nodes_string)
         self.db_cur.execute(query)
         self.db_conn.commit()

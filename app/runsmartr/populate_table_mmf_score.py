@@ -4,6 +4,8 @@ import numpy as np
 import json
 from runhere_queries import RunHereDB
 
+route_tables = ('routes_south_of_market')
+
 # route_tables = ('routes_bayview', 'routes_bernal_heights',
 #                 'routes_chinatown','routes_crocker_amazon',
 #                 'routes_downtown_civic_center', 'routes_excelsior',
@@ -22,15 +24,22 @@ def main():
         route_ids = [node for node_tuple in route_ids for node in node_tuple]
         count = 1
         for id in route_ids:
-            route_points = json.loads(rh_db.query_raw(
-                "SELECT ST_AsGeoJSON(linestring) FROM %s WHERE mmf_id = '%d';"
-                % (table_name, id))[0][0])['coordinates']
-            nearest_nodes = np.zeros(len(route_points))
-            for n in range(len(route_points)):
-                nearest_nodes[n] = rh_db.fetch_nearest_highway_node(*route_points[n])
-            print 'Done with route %d of %d (%s)' % (count, nroutes, table_name)
-            count += 1
-            rh_db.update_stats_mmf_score(np.unique(nearest_nodes))
+            if not rh_db.already_done(id):
+                route_points = json.loads(rh_db.query_raw(
+                    "SELECT ST_AsGeoJSON(linestring) FROM %s WHERE mmf_id = '%d';"
+                    % (table_name, id))[0][0])['coordinates']
+                nearest_nodes = np.zeros(len(route_points))
+                for n in range(len(route_points)):
+                    nearest_nodes[n] = rh_db.fetch_nearest_highway_node(*route_points[n])
+                print 'Done with route %d of %d (%s)' % (count, nroutes, table_name)
+                count += 1
+                nearest_nodes = np.unique(nearest_nodes, id)
+                rh_db.update_stats_mmf_score(nearest_nodes)
+                rh_db.update_stats_route_nodes(id, nearest_nodes)
+            else:
+                print 'Already did route %d (%d of %d in %s)' % (id, count,
+                                                                 nroute, table_name)
+            
 
 if __name__ == '__main__':
     main()
