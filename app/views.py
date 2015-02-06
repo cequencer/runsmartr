@@ -6,13 +6,8 @@ from app.runsmartr.runrouter import RunRouter
 # rr = RunRouter()
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def cities_input():
-    return render_template('base.html')
-
-@app.route('/input', methods=['GET', 'POST'])
-def input():
     form = InputForm()
-    return render_template('input.html',
-                           title='Input',
-                           form=form);
+    return render_template('base.html',
+                           form=form)

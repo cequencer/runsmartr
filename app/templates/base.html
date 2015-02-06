@@ -42,6 +42,15 @@
           <div class="inner cover">
             <h1 class="cover-heading">runSmartr</h1>
             <p class="lead">Better running routes through data.</p>
+
+	    <!-- Form to input run parameters -->
+	    <form action="" method="post" name="input">
+	      {{ form.hidden_tag() }}
+	      <p class="input">
+		Start Address: {{ form.address(size=40) }}
+	      </p>
+	    </form>
+
             <p class="lead">
               <a href="#" class="btn btn-lg btn-default">run!</a>
             </p>
