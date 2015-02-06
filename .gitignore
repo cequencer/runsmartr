@@ -1,3 +1,4 @@
+config.py
 runsmartr.conf
 credentials.json
 *.pyc
