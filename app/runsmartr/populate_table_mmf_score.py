@@ -4,17 +4,17 @@ import numpy as np
 import json
 from runhere_queries import RunHereDB
 
-route_tables = ('routes_bayview', 'routes_bernal_heights',
-                'routes_chinatown','routes_crocker_amazon',
-                'routes_excelsior',
-                'routes_nob_hill', 'routes_north_beach',
-                'routes_russian_hill',
-                'routes_visitacion_valley')
+route_tables = ('',)
 
 # Done:
 # route_tables = ('routes_south_of_market', 'routes_potrero_hill',
 #                 'routes_financial_district', 'routes_downtown_civic_center',
-#                 'routes_mission')
+#                 'routes_mission','routes_bayview', 'routes_bernal_heights',
+#                 'routes_chinatown','routes_crocker_amazon',
+#                 'routes_excelsior',
+#                 'routes_nob_hill', 'routes_north_beach',
+#                 'routes_russian_hill',
+#                 'routes_visitacion_valley')
 
 # route_tables = ('routes_bayview', 'routes_bernal_heights',
 #                 'routes_chinatown','routes_crocker_amazon',
