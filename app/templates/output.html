@@ -44,15 +44,14 @@
             </div>
           </div>
 
-          <div class="inner cover">
+	  <div class="inner sidebox">
             <h1 class="cover-heading">runSmartr</h1>
-            <p class="lead">Better running routes through data.</p>
 
 	    <!-- Form to input run parameters -->
-	    <form method="POST" action="/index" name="input">
+	    <form action="" method="post" name="input">
 	      <ul class="input">
-		<li>Start: {{ form.address(size=30) }}</li>
-		<li>Distance: {{ form.distance(size=4) }}</li>
+		<li>{{ form.address(size=30) }}</li><br>
+		<li>{{ form.distance(size=4) }}</li>
 		<li>
 		  <ul class="inputunits">
 		    {% for subfield in form.units %}
@@ -66,7 +65,7 @@
               </p>
 	    </form>
 
-          </div>
+	  </div>
 
         </div>
       </div>
@@ -84,7 +83,7 @@
     <script src="../static/js/jquery.geocomplete.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../static/js/ie10-viewport-bug-workaround.js"></script>
-    
+
     <script type="text/javascript">
       function sizeMap(){
           $("#map").height($("body").height());
@@ -98,15 +97,16 @@
           map.addControl(
               L.control.zoom().setPosition('bottomleft')
           );
+          return map
       }
 
       $(document).ready(function(){
           sizeMap();
           $(window).resize(sizeMap);
-          addMap(37.765, -122.436, 13)
+          window.map = addMap({{ latlon_string }}, 16)
           $("#address").geocomplete();
       });
     </script>
-
+    
   </body>
 </html>

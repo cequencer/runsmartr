@@ -126,6 +126,11 @@ class RunRouter:
             [point for segment in self.current_route
              for point in segment])
 
+    def get_route_points(self):
+        route_points = []
+        for seg in self.current_route:
+            route_points += self.add_route_segment(seg)
+
     def update_folium_map(self):
         centroid = self.get_centroid()
         self.run_map = folium.Map(location=centroid, tiles='Stamen Toner',
