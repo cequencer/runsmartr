@@ -3,10 +3,8 @@ from app import app
 from .forms import InputForm
 from app.runsmartr.runrouter import RunRouter
 
-rr = RunRouter()
-
-@app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def run_input():
     form = InputForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -27,8 +25,9 @@ def run_output():
         distance = float(request.args.get('distance')) * 1000.
     else:
         distance = float(request.args.get('distance')) * 1608.
-    # rr.do_route(request.args.get('address'), distance)
-    # latlon = rr.get_centroid()
+    rr = RunRouter()
+    latlon = rr.data.find_latlon_address(
+        request.args.get('address'))
     latlon_string = '%f, %f' % (latlon[0], latlon[1])
     return render_template('output.html',
                            form=form,

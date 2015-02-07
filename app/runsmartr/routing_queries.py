@@ -41,7 +41,8 @@ SELECT id FROM
             AS nodes_origin
     ORDER BY origin <-> point
     LIMIT %d) AS knn
-ORDER BY RANDOM() LIMIT 1;""" % (self.rnodes_table, self.rnodes_table, rnode, threshold)
+ORDER BY RANDOM() LIMIT 1;""" % (self.rnodes_table, self.rnodes_table,
+                                 rnode, threshold)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
@@ -52,23 +53,29 @@ ORDER BY RANDOM() LIMIT 1;""" % (self.rnodes_table, self.rnodes_table, rnode, th
 SELECT id FROM
     (SELECT point AS search_point FROM %s WHERE id = '%d') AS rnode,
     %s
-ORDER BY search_point <-> point LIMIT 1;""" % (self.rnodes_table, rnode, self.rnodes_table)
+ORDER BY search_point <-> point
+LIMIT 1;""" % (self.rnodes_table, rnode, self.rnodes_table)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
     def find_rnode_address(self, address):
         ''' Find nearest routing node to <address> using google geocoder
         '''
+        return self.find_rnode_latlon(*self.find_latlon_address(address))
+
+    def find_latlon_address(self, address):
+        ''' Find latlon of <address> using google geocoder
+        '''
         location = self.geocoder.geocode(address)
-        return self.find_rnode_latlon(
-            location.latitude, location.longitude)
+        return location.latitude, location.longitude
 
     def find_rnode_latlon(self, lat, lon):
         ''' Find nearest routing node to (<lat>, <lon>)
         '''
         query = """
 SELECT id FROM %s
-ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326) LIMIT 1;""" % (self.rnodes_table, lon, lat)
+ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326)
+LIMIT 1;""" % (self.rnodes_table, lon, lat)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
@@ -78,7 +85,8 @@ ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326) LIMIT 1;""" % (self.rn
         query = """
 SELECT ST_Distance(point_1::geography, point_2::geography) FROM
     (SELECT point AS point_1 FROM %s WHERE id = '%d') AS rnode_1,
-    (SELECT point AS point_2 FROM %s WHERE id = '%d') AS rnode_2;""" % (self.rnodes_table, n1, self.rnodes_table, n2)
+    (SELECT point AS point_2 FROM %s WHERE id = '%d') AS rnode_2;""" % (self.rnodes_table, n1,
+                                                                        self.rnodes_table, n2)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
