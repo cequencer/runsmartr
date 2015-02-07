@@ -15,7 +15,6 @@ route_tables = ('routes_bayview', 'routes_bernal_heights',
 # route_tables = ('routes_south_of_market', 'routes_potrero_hill',
 #                 'routes_financial_district', 'routes_downtown_civic_center',
 #                 'routes_mission')
-
 # route_tables = ('routes_bayview', 'routes_bernal_heights',
 #                 'routes_chinatown','routes_crocker_amazon',
 #                 'routes_downtown_civic_center', 'routes_excelsior',
