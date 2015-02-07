@@ -4,7 +4,17 @@ import numpy as np
 import json
 from runhere_queries import RunHereDB
 
-route_tables = ('routes_south_of_market')
+route_tables = ('routes_bayview', 'routes_bernal_heights',
+                'routes_chinatown','routes_crocker_amazon',
+                'routes_excelsior',
+                'routes_nob_hill', 'routes_north_beach',
+                'routes_russian_hill',
+                'routes_visitacion_valley')
+
+# Done:
+# route_tables = ('routes_south_of_market', 'routes_potrero_hill',
+#                 'routes_financial_district', 'routes_downtown_civic_center',
+#                 'routes_mission')
 
 # route_tables = ('routes_bayview', 'routes_bernal_heights',
 #                 'routes_chinatown','routes_crocker_amazon',
@@ -32,13 +42,13 @@ def main():
                 for n in range(len(route_points)):
                     nearest_nodes[n] = rh_db.fetch_nearest_highway_node(*route_points[n])
                 print 'Done with route %d of %d (%s)' % (count, nroutes, table_name)
-                count += 1
-                nearest_nodes = np.unique(nearest_nodes, id)
-                rh_db.update_stats_mmf_score(nearest_nodes)
+                nearest_nodes = np.unique(nearest_nodes)
+                # rh_db.update_stats_mmf_score(nearest_nodes, id)
                 rh_db.update_stats_route_nodes(id, nearest_nodes)
             else:
                 print 'Already did route %d (%d of %d in %s)' % (id, count,
-                                                                 nroute, table_name)
+                                                                 nroutes, table_name)
+            count += 1
             
 
 if __name__ == '__main__':

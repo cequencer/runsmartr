@@ -105,7 +105,7 @@ SELECT ST_Distance(point_1, point_2) FROM
         (points[0], points[1]))
         return self.db_cur.fetchall()
 
-    def already_done(mmf_id):
+    def already_done(self, mmf_id):
         ''' Check if the route has already been tallied.
         '''
         query = "SELECT * FROM mmf_routes_nodes WHERE mmf_id = %d" % mmf_id
@@ -127,8 +127,8 @@ WHERE id IN (%s);""" % (mmf_id, nearest_nodes_string)
         self.db_conn.commit()
 
     def update_stats_route_nodes(self, mmf_id, nearest_nodes):
-        nearest_nodes_string = '{' + ', '.join(('%d' % id)
-            for id in nearest_nodes) + '}'
+        nearest_nodes_string = "'{" + ', '.join(('%d' % id)
+            for id in nearest_nodes) + "}'"
         query = """
 INSERT INTO mmf_routes_nodes
 VALUES (%d, %s);""" % (mmf_id, nearest_nodes_string)
