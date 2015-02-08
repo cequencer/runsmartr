@@ -67,7 +67,7 @@ body {
  */
 .masthead{
     /* background-color: rgba(0,64,122,0.2); */
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0,0,0,0.1);
 }
 .masthead-brand {
     margin-top: 10px;
@@ -81,7 +81,7 @@ body {
     margin-left: 20px;
 }
 .masthead-nav > li > a {
-    padding: 3px 10px;
+    padding: 15px 10px;
     font-size: 16px;
     font-weight: bold;
     color: #047; /* IE8 proofing */
@@ -156,7 +156,7 @@ ul.inputunits {
     text-align: left;
     display: table;
     position: absolute;
-    top: 60px;
+    top: 67px;
     left: 0;
     padding: 20px 20px;
     background-color: #047;
@@ -213,9 +213,11 @@ ul.inputunits {
 	width: 100%; /* Must be percentage or pixels for horizontal alignment */
     }
     .sidebox {
-	left: 20px;
+	left: 27px;
 	border-radius: 10px;
     }
+    .masthead-nav > li > a {
+	padding: 3px 10px;
 }
 
 @media (min-width: 992px) {
