@@ -35,7 +35,10 @@ def run_output():
     rr = RunRouter()
     latlon = rr.data.find_latlon_address(
         request.args.get('address'))
+
     latlon_string = '%f, %f' % (latlon[0], latlon[1])
+    # latlon_string = '%f, %f' % (37.765, -122.436)
+
     return render_template('output.html',
                            form=form,
                            latlon_string=latlon_string)
