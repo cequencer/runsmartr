@@ -96,9 +96,8 @@ function addMap(lat, lon, zoom){
     var map = L.mapbox.map('map', 'andyalmandhunter.l52ai08p', {
         zoomControl: false
     }).setView([lat, lon], zoom);
-    map.addControl(
-        L.control.zoom().setPosition('bottomleft')
-    );
+    L.control.zoom().setPosition('bottomleft').addTo(map)
+    L.marker([{{ latlon_string }}]).addTo(map)    
 }
 
 $(document).ready(function(){
