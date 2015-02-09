@@ -98,15 +98,17 @@ function addMap(lat, lon, zoom){
     }).setView([lat, lon], zoom);
     L.control.zoom().setPosition('bottomleft').addTo(map);
     L.marker([{{ latlon_string }}]).addTo(map)
-    L.multiPolyline({{ footway_graph_string }},
-		    {color: '#047', weight: 3}).addTo(map)
-		    
+    L.multiPolyline({{ footway_graph_string }},{
+	color: '#047',
+	weight: 3,
+	opacity: 1.0
+    }).addTo(map)
 }
 
 $(document).ready(function(){
     sizeMap();
     $(window).resize(sizeMap);
-    addMap({{ latlon_string }}, 15)
+    addMap({{ latlon_string }}, 14)
     $("#address").geocomplete();
 });
 

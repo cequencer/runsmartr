@@ -49,13 +49,15 @@ SELECT edge
         exists_backward = self.db.query_raw(query) != []
         return exists_backward or exists_forward
 
-#     def _get_run_score(self, nodes):
-#         run_score = 0
-#         for node in nodes:
-#             query = """
-# """
-#             run_score += self.db.query_raw(query)[0][0]
-#         return run_score
+    def _get_run_score(self, nodes):
+        run_score = 0
+        for node in nodes:
+            query = """
+SELECT COUNT(*)
+    FROM mmf_routes_nodes
+    WHERE nodes @> ARRAY[%d::bigint];""" % node
+            run_score += self.db.query_raw(query)[0][0]
+        return float(run_score)/len(nodes)
 
     def _get_distance(self, nodes):
         distance = 0.
@@ -74,14 +76,14 @@ SELECT ST_Distance(point_1::geography, point_2::geography)
         return distance
 
     def _record_row(self, node, edge, nodes_along_edge):
-        # run_score = self._get_run_score(nodes_along_edge)
         distance = self._get_distance(nodes_along_edge)
+        run_score = self._get_run_score(nodes_along_edge)
         edge_string, edge_nodes_string = self._edge_strings(
             node, edge, nodes_along_edge)
         query = """
-INSERT INTO routing_edges (edge, edge_nodes, distance)
-    VALUES ('{%s}', '{%s}', '%f');""" % (edge_string, edge_nodes_string,
-            distance)
+INSERT INTO routing_edges (edge, edge_nodes, distance, run_score)
+    VALUES ('{%s}', '{%s}', '%f', '%f');""" % (edge_string, edge_nodes_string,
+                                               distance, run_score)
         self.db.db_cur.execute(query)
         self.db.db_conn.commit()
 
