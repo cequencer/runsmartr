@@ -107,7 +107,6 @@ SELECT ST_Distance(point_1::geography, point_2::geography) FROM
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
-
     def _get_rnodes_within_radius(self, origin, radius):
         query = """
 SELECT id
@@ -116,21 +115,35 @@ SELECT id
         (SELECT point AS origin FROM rnodes WHERE id = '%d') AS origin_table
     WHERE ST_DWithin(origin::geography, point::geography, %f)""" % (origin, radius)
         self.db_cur.execute(query)
-        return self.db_cur.fetchall()[0]    
+        return self.db_cur.fetchall()[0]
 
     def get_edges_within_radius(self, origin, radius):
         rnodes = self._get_rnodes_within_radius(origin, radius)
         query = """
-SELECT edge
-    FROM
-        routing_edges,
-        (SELECT array_agg(id) as near_nodes
-            FROM
-                rnodes,
-                (SELECT point AS origin FROM rnodes WHERE id = '%d') AS origin_table
-            WHERE ST_DWithin(origin::geography, point::geography, %f)) AS nodes_within_radius
-    WHERE edge <@ near_nodes;""" % (origin, radius)
+WITH near_nodes AS
+    (SELECT id
+        FROM
+            rnodes,
+            (SELECT point AS origin
+                FROM rnodes
+                WHERE id = '%d') as origin_table
+        WHERE ST_Dwithin(origin::geography, point::geography, %f))
+SELECT end1, end2
+    FROM routing_edges_indexed
+    WHERE
+        end1 IN (SELECT id FROM near_nodes) AND
+        end2 IN (SELECT id FROM near_nodes);""" % (origin, radius)
+# SELECT end1, end2
+#     FROM
+#         routing_edges_indexed,
+#         (SELECT id as near_nodes
+#             FROM
+#                 rnodes,
+#                 (SELECT point AS origin FROM rnodes WHERE id = '%d') AS origin_table
+#             WHERE ST_DWithin(origin::geography, point::geography, %f)) AS nodes_within_radius
+#     WHERE
+#         end1 IN near_nodes;""" % (origin, radius)
         self.db_cur.execute(query)
         return [[self.get_node_latlon(edge[0]),
                  self.get_node_latlon(edge[1])]
-                for edges in self.db_cur.fetchall() for edge in edges]
+                for edge in self.db_cur.fetchall()]
