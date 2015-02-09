@@ -96,8 +96,11 @@ function addMap(lat, lon, zoom){
     var map = L.mapbox.map('map', 'andyalmandhunter.l52ai08p', {
         zoomControl: false
     }).setView([lat, lon], zoom);
-    L.control.zoom().setPosition('bottomleft').addTo(map)
-    L.marker([{{ latlon_string }}]).addTo(map)    
+    L.control.zoom().setPosition('bottomleft').addTo(map);
+    L.marker([{{ latlon_string }}]).addTo(map)
+    L.multiPolyline({{ footway_graph_string }},
+		    {color: '#047', weight: 3}).addTo(map)
+		    
 }
 
 $(document).ready(function(){

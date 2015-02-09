@@ -32,10 +32,13 @@ def run_output():
         distance = float(request.args.get('distance')) * 1000.
     else:
         distance = float(request.args.get('distance')) * 1608.
+    address = request.args.get('address')
     rr = RunRouter()
-    latlon = rr.data.find_latlon_address(
-        request.args.get('address'))
+    latlon = rr.data.find_latlon_address(address)
+    start_rnode = rr.data.find_rnode_address(address)
+    edges = rr.data.get_edges_within_radius(start_rnode, distance/2.)
     latlon_string = '%f, %f' % (latlon[0], latlon[1])
     return render_template('output.html',
                            form=form,
-                           latlon_string=latlon_string)
+                           latlon_string=latlon_string,
+                           footway_graph_string=str(edges))

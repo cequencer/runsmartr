@@ -79,6 +79,16 @@ LIMIT 1;""" % (self.rnodes_table, lon, lat)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
 
+    def get_node_latlon(self, id):
+        ''' Select node by ID
+        - Return point as list(lat, lon)
+        '''
+        self.db_cur.execute("""
+SELECT ST_AsGeoJSON(geom) FROM nodes_highways
+WHERE id = '%s';""", (id,))
+        return json.loads(
+            self.db_cur.fetchone()[0])['coordinates'][::-1]
+
     def distance(self, n1, n2):
         ''' Return distance between two nodes in meters
         '''
@@ -96,3 +106,31 @@ SELECT ST_Distance(point_1::geography, point_2::geography) FROM
         query = "SELECT edges FROM %s WHERE node = '%d'" % (self.routing_table, node)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()[0][0]
+
+
+    def _get_rnodes_within_radius(self, origin, radius):
+        query = """
+SELECT id
+    FROM
+        rnodes,
+        (SELECT point AS origin FROM rnodes WHERE id = '%d') AS origin_table
+    WHERE ST_DWithin(origin::geography, point::geography, %f)""" % (origin, radius)
+        self.db_cur.execute(query)
+        return self.db_cur.fetchall()[0]    
+
+    def get_edges_within_radius(self, origin, radius):
+        rnodes = self._get_rnodes_within_radius(origin, radius)
+        query = """
+SELECT edge
+    FROM
+        routing_edges,
+        (SELECT array_agg(id) as near_nodes
+            FROM
+                rnodes,
+                (SELECT point AS origin FROM rnodes WHERE id = '%d') AS origin_table
+            WHERE ST_DWithin(origin::geography, point::geography, %f)) AS nodes_within_radius
+    WHERE edge <@ near_nodes;""" % (origin, radius)
+        self.db_cur.execute(query)
+        return [[self.get_node_latlon(edge[0]),
+                 self.get_node_latlon(edge[1])]
+                for edges in self.db_cur.fetchall() for edge in edges]
