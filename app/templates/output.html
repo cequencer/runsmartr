@@ -100,7 +100,7 @@ function addMap(lat, lon, zoom){
     L.marker([{{ latlon_string }}]).addTo(map)
     {% for edge in edges %}
     L.polyline({{ edge['edge'] }},{
-	color: '#047',
+	color: '#da4545',
 	weight: {{ edge['weight'] }},
 	opacity: 1.0
     }).addTo(map)
