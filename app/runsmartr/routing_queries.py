@@ -128,12 +128,10 @@ WITH near_nodes AS
                 FROM rnodes
                 WHERE id = '%d') as origin_table
         WHERE ST_Dwithin(origin::geography, point::geography, %f))
-SELECT end1, end2
+SELECT end1, end2, distance, run_score
     FROM routing_edges_indexed
     WHERE
         end1 IN (SELECT id FROM near_nodes) OR
         end2 IN (SELECT id FROM near_nodes);""" % (origin, radius)
         self.db_cur.execute(query)
-        return [[self.get_node_latlon(edge[0]),
-                 self.get_node_latlon(edge[1])]
-                for edge in self.db_cur.fetchall()]
+        return self.db_cur.fetchall()
