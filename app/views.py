@@ -3,6 +3,7 @@ from app import app
 from .forms import InputForm
 from app.runsmartr.runrouter import RunRouter
 import numpy as np
+import json
 
 import pdb
 
@@ -37,14 +38,14 @@ def run_output():
     rr = RunRouter()
     latlon = rr.data.find_latlon_address(address)
     start_rnode = rr.data.find_rnode_address(address)
-    edges = rr.data.get_edges_within_radius(start_rnode, distance/2.)
-    min_score = min([float(edge[2]) for edge in edges])    
-    max_score = max([float(edge[2]) for edge in edges])    
-    edges_dict = [{'edge': str([rr.data.get_node_latlon(edge[0]), rr.data.get_node_latlon(edge[1])]),
-                   'weight': 1 + 9*(float(edge[2])-min_score) / (max_score-min_score)}
+    edges = rr.data.get_edges_latlon_within_radius(start_rnode, distance/2.)
+    min_score = min([float(edge[3]) for edge in edges])    
+    max_score = max([float(edge[3]) for edge in edges])    
+    edges_dict = [{'edge': str([json.loads(edge[0])['coordinates'][::-1],
+                                json.loads(edge[1])['coordinates'][::-1]]),
+                   'weight': 1 + 9*(float(edge[3])-min_score) / (max_score-min_score)}
                   for edge in edges]
     latlon_string = '%f, %f' % (latlon[0], latlon[1])
-    pdb.set_trace()
     return render_template('output.html',
                            form=form,
                            latlon_string=latlon_string,

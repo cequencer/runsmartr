@@ -118,7 +118,6 @@ SELECT id
         return self.db_cur.fetchall()[0]
 
     def get_edges_within_radius(self, origin, radius):
-        rnodes = self._get_rnodes_within_radius(origin, radius)
         query = """
 WITH near_nodes AS
     (SELECT id
@@ -133,5 +132,19 @@ SELECT end1, end2, distance, run_score
     WHERE
         end1 IN (SELECT id FROM near_nodes) OR
         end2 IN (SELECT id FROM near_nodes);""" % (origin, radius)
+        self.db_cur.execute(query)
+        return self.db_cur.fetchall()
+
+    def get_edges_latlon_within_radius(self, origin, radius):
+        query = """
+WITH origin AS
+    (SELECT point
+        FROM rnodes
+        WHERE id = '%d')
+SELECT ST_AsGeoJSON(point1), ST_AsGeoJSON(point2), distance, run_score
+    FROM routing_edges_latlon, origin
+    WHERE
+        ST_Dwithin(origin.point::geography, point1::geography, %f) OR
+        ST_Dwithin(origin.point::geography, point2::geography, %f);""" % (origin, radius, radius)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()
