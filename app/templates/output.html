@@ -98,10 +98,10 @@ function addMap(lat, lon, zoom){
     }).setView([lat, lon], zoom);
     L.control.zoom().setPosition('bottomleft').addTo(map);
     L.marker([{{ latlon_string }}]).addTo(map)
-    {% for edge, weight in edges.iteritems() %}
-    L.multiPolyline({{ edge }},{
+    {% for edge in edges %}
+    L.polyline({{ edge['edge'] }},{
 	color: '#047',
-	weight: {{ weight }},
+	weight: {{ edge['weight'] }},
 	opacity: 1.0
     }).addTo(map)
     {% endfor %}
