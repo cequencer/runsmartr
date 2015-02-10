@@ -23,11 +23,9 @@ def run_output():
                         address=form.address.data,
                         distance=form.distance.data,
                         units=form.units.data))
-    # Use request data as form defaults
     form.address.data = request.args.get('address')
     form.distance.data = request.args.get('distance')
     form.units.data = request.args.get('units')
-    # Process request
     if request.args.get('units') == 'km':
         distance = float(request.args.get('distance')) * 1000.
     else:
