@@ -98,11 +98,13 @@ function addMap(lat, lon, zoom){
     }).setView([lat, lon], zoom);
     L.control.zoom().setPosition('bottomleft').addTo(map);
     L.marker([{{ latlon_string }}]).addTo(map)
-    L.multiPolyline({{ footway_graph_string }},{
+    {% for edge, weight in edges.iteritems() %}
+    L.multiPolyline({{ edge }},{
 	color: '#047',
-	weight: 3,
+	weight: {{ weight }},
 	opacity: 1.0
     }).addTo(map)
+    {% endfor %}
 }
 
 $(document).ready(function(){
