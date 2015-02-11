@@ -103,13 +103,20 @@ function addMap(lat, lon, zoom){
     	color: '#047',
     	weight: 8,
     	opacity: 1.0
-    }).addTo(map)
+    }).addTo(map);
+    {% for edge in edges %}
+    L.polyline({{ edge['edge'] }},{
+	color: '#c60',
+	weight: {{ edge['weight'] }},
+	opacity: 0.5
+    }).addTo(map);
+    {% endfor %}
 }
 
 $(document).ready(function(){
     sizeMap();
     $(window).resize(sizeMap);
-    addMap({{ latlon_string }}, 15)
+    addMap({{ center_latlon }}, 15)
     $("#address").geocomplete();
 });
 

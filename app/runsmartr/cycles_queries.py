@@ -78,9 +78,9 @@ class CyclesDB:
         self._cur.execute(query)
         return json.loads(self._cur.fetchone()[0])['coordinates'][::-1]
 
-    def shortest_path(self, node1, node2):
+    def shortest_path(self, node1, node2, G):
         try:
-            path = nx.shortest_path(self.foot_graph, source=node1, target=node2, weight='dist')
+            path = nx.shortest_path(G, source=node1, target=node2, weight='dist')
         except nx.NetworkXNoPath:
             return 'failed', []
         return 'success', path
@@ -92,7 +92,7 @@ class CyclesDB:
                  FROM rnodes_intersections WHERE id = '%d') AS rnode,
                 rnodes_intersections
             ORDER BY search_point <-> point LIMIT 1;"""
-                 % ((m-m/2.)*rnd()/89012., (m-m/2.)*rnd()/110978., rnode))
+                 % (m*(rnd()-0.5) / 89012., m*(rnd()-0.5) / 110978., rnode))
         self._cur.execute(query)
         return self._cur.fetchall()[0][0]
 
@@ -117,10 +117,9 @@ class CyclesDB:
                    FROM rnodes_intersections
                    WHERE id = '%d')
            SELECT
-               ST_AsGeoJSON(point1), ST_AsGeoJSON(point2),
-               distance, run_score,
-               end1, end2
-
+                   ST_AsGeoJSON(point1), ST_AsGeoJSON(point2),
+                   distance, run_score,
+                   end1, end2
                FROM routing_edges_latlon, origin
                WHERE
                    ST_Dwithin(origin.point::geography, point1::geography, %f) OR
