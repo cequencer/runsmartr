@@ -2,6 +2,9 @@ from flask import render_template, redirect, request, url_for
 from app import app
 from .forms import InputForm
 from app.runsmartr.runrouter_cycles import RunRouter
+import networkx as nx
+
+import pdb
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -33,16 +36,18 @@ def run_output():
         distance = float(request.args.get('distance')) * 1608.
     address = request.args.get('address')
     router = RunRouter(address, distance)
-    latlon_string = '%f, %f' % (router.data.start.latitude,
-                                router.data.start.longitude)
+    latlon_string = '%f, %f' % router.data.start
     foot_graph = router.data.foot_graph_latlon()
-    run_scores = [edge['run_score'] for edge in foot_graph]
+    run_score = [edge['run_score'] for edge in foot_graph]
     min_score = min(run_score)
     max_score = max(run_score)
-    edges = [{'edge': edge[0],
-              'weight': 1 + 9*(edge[3]-min_score) / (max_score-min_score)}
+    edges = [{'edge': edge['edge'],
+              'weight': 1 + 9*(edge['run_score']-min_score) / (max_score-min_score)}
              for edge in foot_graph]
+    router.initialize_search()
+    route = router.data.detailed_path_latlon(router.current_route)
     return render_template('output.html',
                            form=form,
                            latlon_string=latlon_string,
-                           edges=edges_dict)
+                           edges=edges,
+                           route=route)

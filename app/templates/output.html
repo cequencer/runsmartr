@@ -98,13 +98,18 @@ function addMap(lat, lon, zoom){
     }).setView([lat, lon], zoom);
     L.control.zoom().setPosition('bottomleft').addTo(map);
     L.marker([{{ latlon_string }}]).addTo(map)
-    {% for edge in edges %}
-    L.polyline({{ edge['edge'] }},{
-	color: '#da4545',
-	weight: {{ edge['weight'] }},
-	opacity: 1.0
+    L.polyline({{ route }},{
+    	color: '#047',
+    	weight: 8,
+    	opacity: 1.0
     }).addTo(map)
-    {% endfor %}
+    // {% for edge in edges %}
+    // L.polyline({{ edge['edge'] }},{
+    // 	color: '#c60',
+    // 	weight: {{ edge['weight'] }},
+    // 	opacity: 1.0
+    // }).addTo(map)
+    // {% endfor %}
 }
 
 $(document).ready(function(){
