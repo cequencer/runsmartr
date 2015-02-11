@@ -45,7 +45,7 @@ class CyclesDB:
                     ST_Dwithin(origin.point::geography, point2::geography, %f);"""
                  % (self.start_node, radius, radius))
         self._cur.execute(query)
-        G.add_edges_from([[int(node[0]), int(node[1])]
+        G.add_edges_from([[int(node[0]), int(node[1]), {'dist': node[2], 'run_score': node[3]}]
                           for node in self._cur.fetchall()])
         G_cycles = nx.Graph()
         for cycle in nx.cycle_basis(G):
@@ -79,7 +79,11 @@ class CyclesDB:
         return json.loads(self._cur.fetchone()[0])['coordinates'][::-1]
 
     def shortest_path(self, node1, node2):
-        return nx.shortest_path(self.foot_graph, source=node1, target=node2)
+        try:
+            path = nx.shortest_path(self.foot_graph, source=node1, target=node2, weight='dist')
+        except nx.NetworkXNoPath:
+            return 'failed', []
+        return 'success', path
 
     def rand_rnode_within_m(self, rnode, m):
         query = ("""
@@ -101,7 +105,6 @@ class CyclesDB:
         for node in nodes[1:]:
             detailed_nodes_list += self._detailed_nodes_for_edge(node0, node)
             node0 = node
-        # detailed_nodes_list += self._detailed_nodes_for_edge(node0, nodes[0])
         detailed_nodes_latlon = [self._node_latlon(node)
                                  for node in detailed_nodes_list]
         return detailed_nodes_latlon

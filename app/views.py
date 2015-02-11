@@ -37,17 +37,9 @@ def run_output():
     address = request.args.get('address')
     router = RunRouter(address, distance)
     latlon_string = '%f, %f' % router.data.start
-    foot_graph = router.data.foot_graph_latlon()
-    run_score = [edge['run_score'] for edge in foot_graph]
-    min_score = min(run_score)
-    max_score = max(run_score)
-    edges = [{'edge': edge['edge'],
-              'weight': 1 + 9*(edge['run_score']-min_score) / (max_score-min_score)}
-             for edge in foot_graph]
     router.initialize_search()
     route = router.data.detailed_path_latlon(router.current_route)
     return render_template('output.html',
                            form=form,
                            latlon_string=latlon_string,
-                           edges=edges,
                            route=route)
