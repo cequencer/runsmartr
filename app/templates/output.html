@@ -61,6 +61,7 @@
 		  </ul>
 		</li>
 	      </ul>
+	      <p class="lead">{{ route_length }}
               <p class="lead">
 		<input class="btn btn-lg btn-default" type="submit" value="find route!">
               </p>
@@ -97,7 +98,7 @@ function addMap(lat, lon, zoom){
         zoomControl: false
     }).setView([lat, lon], zoom);
     L.control.zoom().setPosition('bottomleft').addTo(map);
-    L.marker([{{ latlon_string }}]).addTo(map)
+    L.marker([{{ center_latlon }}]).addTo(map)
     L.polyline({{ route }},{
     	color: '#047',
     	weight: 8,

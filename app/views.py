@@ -39,7 +39,9 @@ def run_output():
     latlon_string = '%f, %f' % router.data.start
     router.initialize_search()
     route = router.data.detailed_path_latlon(router.current_route)
+    route_length = router.get_route_length()
     return render_template('output.html',
                            form=form,
-                           latlon_string=latlon_string,
+                           center_latlon=latlon_string,
+                           route_length=('%.1f' % route_length),
                            route=route)

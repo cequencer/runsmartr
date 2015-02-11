@@ -1,5 +1,4 @@
 from cycles_queries import CyclesDB
-import networkx as nx
 
 import pdb
 
@@ -58,7 +57,7 @@ class RunRouter:
         ''' Step control points stochastically within threshold
         - Update control points
         - Update route (ordered list of nodes)
-        - Loop until found new route with reduced cost
+        - Loop until found new route with reduced cost (approximate gradient)
         '''
         new_cost = self.current_cost
         count = 0
@@ -93,13 +92,15 @@ class RunRouter:
         '''
         return abs(self.get_route_length(route) - self.distance)
         
-    def get_route_length(self, route):
+    def get_route_length(self):
         ''' Get Route length
         '''
-        current_dist = 0.
-        for segment in route:
-            current_dist += self.get_segment_length(segment)
-        return current_dist
+        route_length = 0.
+        node0 = self.current_route[0]
+        for node in self.current_route[1:]:
+            route_length += self.data.foot_graph[node0][node]
+            node0 = node
+        return route_length
 
     def get_segment_length(self, segment):
         seg_dist = 0.
