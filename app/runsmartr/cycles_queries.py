@@ -85,6 +85,18 @@ class CyclesDB:
             return 'failed', []
         return 'success', path
 
+    def straight_line_dist(self, node1, node2):
+        query = ("""
+            SELECT ST_Distance(point_1::geography, point_2::geography)
+                FROM
+                    (SELECT point AS point_1
+                        FROM rnodes WHERE id = '%d') AS rnode_1,
+                    (SELECT point AS point_2
+                        FROM rnodes WHERE id = '%d') AS rnode_2;"""
+                 % (node1, node2))
+        self._cur.execute(query)
+        return self._cur.fetchone()[0]
+
     def rand_rnode_within_m(self, rnode, m):
         query = ("""
             SELECT id FROM

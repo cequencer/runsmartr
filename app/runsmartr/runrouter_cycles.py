@@ -9,37 +9,39 @@ class RunRouter:
         self.data = CyclesDB(address, distance)
 
     def do_route(self, threshold=800.):
-        ''' Find a route
-        - Threshold in meters for settling on a route
-        - Return route as a Folium map
-        '''
+
+        # (1) Start out in distance-finding mode; get within 0.5mi of correct
+        #     distance without worrying about run_score.
+        # (2) Once within distance threshold, never allow distance cost to
+        #     exceed threshold again
+
         self.initialize_search()
         while self.current_cost > threshold:
-            self.step()
-        print 'route found within threshold'
+            self.step_distance()
+            print 'step - distance'
+        # while :
+        #     self.step_score()
+        #     print 'step - score'
             
-    def initialize_search(self, threshold=400.):
+    def initialize_search(self):
         '''Initialize Search
         - Get control points
         - Compute first route
         - Store this route as minimum
         '''
+        G = self.data.foot_graph
+        run_scores = [float(G.get_edge_data(u,v)['run_score']) for u,v in G.edges()]
+        top_node = G.edges()[run_scores.index(max(run_scores))][0]
         self.nodes = [[], [], []]
         self.nodes[0] = self.data.start_node
         result = 'failed'
-
-        # (*) Choose initial nodes intelligently -- (1) Node adjacent to edge
-        #     with highest score within range, (2) Node adjacent to edge with
-        #     highest score within some threshold of one of the two points that
-        #     could possibly complete a triangle with the other two points.
-        #
-        #     Add some randomness in case a path cannot be found
-
         while result != 'success':
+            threshold = self.data.distance/2. - self.data.straight_line_dist(
+                self.data.start_node, top_node)
             self.nodes[1] = self.data.rand_rnode_within_m(
-                self.nodes[0], self.data.distance/2.)
+                top_node, self.data.distance/500.)
             self.nodes[2] = self.data.rand_rnode_within_m(
-                self.nodes[0], self.data.distance/2.)
+                top_node, self.data.distance/2.)
             result, self.current_route = self.get_route(self.nodes)
         self.current_cost = self.get_cost(self.current_route)
                 
@@ -67,22 +69,23 @@ class RunRouter:
         route += r[1:]
         return 'success', route
 
-    def step(self, threshold=800.):
-        ''' Step control points stochastically within threshold
-        - Update control points
-        - Update route (ordered list of nodes)
-        - Loop until found new route with reduced cost (approximate gradient)
-        '''
-
-        # (1) Start out in distance-finding mode; get within 0.5mi of correct
-        #     distance without worrying about run_score.
-        # (2) Once within distance threshold, never allow distance cost to
-        #     exceed threshold again
-
+    def step_distance(self):
         new_cost = self.current_cost
-        count = 0
         while new_cost >= self.current_cost:
-            count += 1
+            print 'try - dist'
+            new_nodes = self.step_trial(self.nodes,
+                                        threshold=self.current_cost)
+            result, new_route = self.get_route(new_nodes)
+            if result == 'success':
+                new_cost = self.get_cost(new_route)
+        self.current_cost = new_cost
+        self.nodes = new_nodes
+        self.current_route = new_route
+            
+    def step_score(self, alpha, threshold):
+        trailing_variance = 999999
+        while trailing_variance > threshold:
+            print 'try - score'
             new_nodes = self.step_trial(self.nodes,
                                         threshold=self.current_cost)
             result, new_route = self.get_route(new_nodes)

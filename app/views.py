@@ -29,11 +29,12 @@ def run_output():
                         units=form.units.data))
     form.address.data = request.args.get('address')
     form.distance.data = request.args.get('distance')
-    form.units.data = request.args.get('units')
-    if request.args.get('units') == 'km':
-        distance = float(request.args.get('distance')) * 1000.
-    else:
-        distance = float(request.args.get('distance')) * 1608.
+    units = request.args.get('units')
+    form.units.data = units
+    fac_units = {'km': 1000,
+                 'mi': 1608}
+    distance = (float(request.args.get('distance')) *
+                fac_units[units])
     address = request.args.get('address')
     router = RunRouter(address, distance)
     latlon_string = '%f, %f' % router.data.start
@@ -46,13 +47,13 @@ def run_output():
              for edge in foot_graph]
     router.do_route()
     route = router.data.detailed_path_latlon(router.current_route)
-    if request.args.get('units') == 'km':
-        route_length = router.get_route_length(router.current_route) / 1000.
-    else:
-        route_length = router.get_route_length(router.current_route) / 1608.
-    return render_template('output.html',
-                           form=form,
-                           center_latlon=latlon_string,
-                           route_length=('%.1f' % route_length),
-                           edges=edges,
-                           route=route)
+    route_length = (router.get_route_length(router.current_route) /
+                    fac_units[units])
+    units_str = {'km': 'km', 'mi': 'mile'}
+    return render_template(
+        'output.html',
+        form=form,
+        center_latlon=latlon_string,
+        route_length=('%.1f ' % route_length) + units_str[units],
+        edges=edges,
+        route=route)

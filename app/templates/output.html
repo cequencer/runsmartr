@@ -61,9 +61,11 @@
 		  </ul>
 		</li>
 	      </ul>
-	      <p class="lead">{{ route_length }}
+	      <ul class="input">
+		<li>Here's a {{ route_length }} route.</li>
+	      </ul>
               <p class="lead">
-		<input class="btn btn-lg btn-default" type="submit" value="find route!">
+		<input class="btn btn-lg btn-default" type="submit" value="find another!">
               </p>
 	    </form>
 
@@ -116,7 +118,7 @@ function addMap(lat, lon, zoom){
 $(document).ready(function(){
     sizeMap();
     $(window).resize(sizeMap);
-    addMap({{ center_latlon }}, 15)
+    addMap({{ center_latlon }}, 14)
     $("#address").geocomplete();
 });
 
