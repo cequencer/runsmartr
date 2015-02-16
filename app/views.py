@@ -3,6 +3,8 @@ from app import app
 from .forms import InputForm
 from app.runsmartr.runrouter_cycles import RunRouter
 import networkx as nx
+from app.runsmartr.credentials import cred
+import geopy.geocoders
 
 import pdb
 
@@ -27,16 +29,27 @@ def run_output():
                         address=form.address.data,
                         distance=form.distance.data,
                         units=form.units.data))
-    form.address.data = request.args.get('address')
+    address = request.args.get('address')
+    units = request.args.get('units')
+    fac_units = {'km': 1000,
+                 'mi': 1608}
+    distance = (float(request.args.get('distance')) *
+                fac_units[units])
+    form.address.data = address
     form.distance.data = request.args.get('distance')
     form.units.data = units
-    center_latlon = '%f, %f' % router.data.start
-
+    geocoder = geopy.geocoders.GoogleV3(**cred['google'])
+    start = geocoder.geocode(address)
+    start_latlon = (start.latitude, start.longitude)
+    center_latlon = '%f, %f' % start_latlon
     return render_template(
         'output.html',
-        center_latlon=center_latlon)
+        form=form,
+        center_latlon=center_latlon,
+        address=address,
+        distance=distance)
         
-@all.route('/route', methods=['POST'])
+@app.route('/route', methods=['POST'])
 def run_route():
     address = request.args.get('address')
     units = request.args.get('units')

@@ -62,11 +62,11 @@
 			    </li>
 			</ul>
 			<ul class="input">
-			    <li id="result"><div class="spinner">
+			    <li id="result">Finding a route<div class="spinner">
 				<div class="bounce1"></div>
 				<div class="bounce2"></div>
 				<div class="bounce3"></div>
-			    </div></li
+			    </div></li>
 			</ul>
 			<p class="lead">
 			    <input class="btn btn-lg btn-default" type="submit" value="find another!">
@@ -118,7 +118,7 @@
 
      function addRunScoreToMap(map, data){
 	 {% for edge in edges %}
-	     L.polyline({{ edge['edge'] }},{
+    	     L.polyline({{ edge['edge'] }},{
 		 color: '#c60',
 		 weight: {{ edge['weight'] }},
 		 opacity: 0.5
@@ -135,7 +135,7 @@
 	     address: {{ address }},
 	     distance: {{ distance }}
 	 }).ajaxSuccess(
-	     addRouteToMap(map, data)
+	     $("#result").html('Done')
 	 );
 
      });
