@@ -111,6 +111,18 @@
 	 return map
      }
 
+     function addRouteToMap(data){
+	 var route = $.parseJSON(data)
+	     $("#result").html(
+		 '<li>Here&#8217;s a ' + route.actual_distance + ' route.</li>'
+	     );
+	 L.polyline(route.route,{
+	     color: '#047',
+	     weight: 8,
+	     opacity: 1.0
+	 }).addTo(map);
+     }
+
      $(document).ready(function(){
 	 sizeMap();
 	 $(window).resize(sizeMap);
@@ -121,15 +133,7 @@
 	     distance: {{ distance }},
 	     units: '{{ units }}'
 	 }, function(data) {
-	     var route = $.parseJSON(data)
-	     $("#result").html(
-		 '<li>Here&#8217;s a ' + route.actual_distance + ' route.</li>'
-	     );
-	     L.polyline(route.route,{
-		 color: '#047',
-		 weight: 8,
-		 opacity: 1.0
-	     }).addTo(map);
+	     addRouteToMap(data);
 	 });
 
      });
