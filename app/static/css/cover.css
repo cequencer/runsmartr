@@ -26,7 +26,6 @@ a:hover {
  */
 
 .spinner {
-    margin-left: 20px;
     width: 39px;
 }
 .spinner > div {
@@ -188,6 +187,9 @@ ul.inputunits {
     margin: 0;
     font-size: 14px;
     display: inline-block;
+}
+result > li + li {
+    margin: 0;
 }
 
 

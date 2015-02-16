@@ -61,12 +61,15 @@
 				</ul>
 			    </li>
 			</ul>
-			<ul class="input">
-			    <li id="result">Finding a route<div class="spinner">
-				<div class="bounce1"></div>
-				<div class="bounce2"></div>
-				<div class="bounce3"></div>
-			    </div></li>
+			<ul id="result" class="input">
+			    <li>Finding a route</li>
+			    <li>
+				<div class="spinner">
+				    <div class="bounce1"></div>
+				    <div class="bounce2"></div>
+				    <div class="bounce3"></div>
+				</div>
+			    </li>
 			</ul>
 			<p class="lead">
 			    <input class="btn btn-lg btn-default" type="submit" value="find another!">
@@ -108,35 +111,26 @@
 	 return map
      }
 
-     function addRouteToMap(map, data){
-	 L.polyline({{ route }},{
-    	     color: '#047',
-    	     weight: 8,
-    	     opacity: 1.0
-	 }).addTo(map);
-     }
-
-     function addRunScoreToMap(map, data){
-	 {% for edge in edges %}
-    	     L.polyline({{ edge['edge'] }},{
-		 color: '#c60',
-		 weight: {{ edge['weight'] }},
-		 opacity: 0.5
-	     }).addTo(map);
-	 {% endfor %}
-     }
-
      $(document).ready(function(){
 	 sizeMap();
 	 $(window).resize(sizeMap);
-	 var map = addMap({{ center_latlon }}, 14)
+	 var map = addMap({{ center_latlon }}, 14);
          $("#address").geocomplete();
 	 $.post('/route',{
-	     address: {{ address }},
-	     distance: {{ distance }}
-	 }).ajaxSuccess(
-	     $("#result").html('Done')
-	 );
+	     address: '{{ address }}',
+	     distance: {{ distance }},
+	     units: '{{ units }}'
+	 }, function(data) {
+	     var route = $.parseJSON(data)
+	     $("#result").html(
+		 '<li>Here&#8217;s a ' + route.actual_distance + ' route.' + route.route + '</li>'
+	     );
+	     L.polyline(route.route,{
+		 color: '#047',
+		 weight: 8,
+		 opacity: 1.0
+	     }).addTo(map);
+	 });
 
      });
 

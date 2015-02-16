@@ -31,10 +31,7 @@ def run_output():
                         units=form.units.data))
     address = request.args.get('address')
     units = request.args.get('units')
-    fac_units = {'km': 1000,
-                 'mi': 1608}
-    distance = (float(request.args.get('distance')) *
-                fac_units[units])
+    distance = float(request.args.get('distance'))
     form.address.data = address
     form.distance.data = request.args.get('distance')
     form.units.data = units
@@ -47,23 +44,25 @@ def run_output():
         form=form,
         center_latlon=center_latlon,
         address=address,
-        distance=distance)
+        distance=distance,
+        units=units)
         
 @app.route('/route', methods=['POST'])
 def run_route():
-    address = request.args.get('address')
-    units = request.args.get('units')
-    fac_units = {'km': 1000,
-                 'mi': 1608}
-    distance = (float(request.args.get('distance')) *
-                fac_units[units])
+    address = request.form['address']
+    units = request.form['units']
+    fac_units = {'km': 1000.,
+                 'mi': 1608.}
+    distance = float(request.form['distance']) * fac_units[units]
     router = RunRouter(address, distance)
     router.do_route()
     route = router.data.detailed_path_latlon(router.current_route)
     route_length = (router.get_route_length(router.current_route) /
                     fac_units[units])
-    units_str = {'km': 'km', 'mi': 'mile'}
-    route_json = "{'distance':%f,'route':%s}" % (distance, route)
+    units_str = {'km': 'km',
+                 'mi': 'mile'}
+    route_json = ('{"actual_distance":"%.1f %s","route":"%s"}'
+                  % (route_length, units_str[units], route))
     return route_json
 
 @app.route('/runscore', methods=['POST'])
