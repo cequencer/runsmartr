@@ -61,7 +61,7 @@ def run_route():
                     fac_units[units])
     units_str = {'km': 'km',
                  'mi': 'mile'}
-    route_json = ('{"actual_distance":"%.1f %s","route":"%s"}'
+    route_json = ('{"actual_distance":"%.1f %s","route":%s}'
                   % (route_length, units_str[units], route))
     return route_json
 

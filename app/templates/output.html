@@ -123,7 +123,7 @@
 	 }, function(data) {
 	     var route = $.parseJSON(data)
 	     $("#result").html(
-		 '<li>Here&#8217;s a ' + route.actual_distance + ' route.' + route.route + '</li>'
+		 '<li>Here&#8217;s a ' + route.actual_distance + ' route.</li>'
 	     );
 	     L.polyline(route.route,{
 		 color: '#047',
