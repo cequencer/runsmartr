@@ -111,7 +111,7 @@
 	 return map
      }
 
-     function addRouteToMap(data){
+     function addRouteToMap(data, map){
 	 var route = $.parseJSON(data)
 	     $("#result").html(
 		 '<li>Here&#8217;s a ' + route.actual_distance + ' route.</li>'
@@ -133,7 +133,7 @@
 	     distance: {{ distance }},
 	     units: '{{ units }}'
 	 }, function(data) {
-	     addRouteToMap(data);
+	     addRouteToMap(data, map);
 	 });
 
      });
