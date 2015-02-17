@@ -29,6 +29,58 @@
 <body>
 
     <div class="site-wrapper">
+
+	<!-- Sidebar -->
+	<div id="sidebar-wrapper">
+
+	    <h1 class="cover-heading">runSmartr</h1>
+
+	    <!-- Form to input run parameters -->
+	    <form action="" method="post" name="input">
+		<ul class="input">
+		    <li>{{ form.address(size=30) }}</li><br>
+		    <li>{{ form.distance(size=4) }}</li>
+		    <li>
+			<ul class="inputunits">
+			    {% for subfield in form.units %}
+				<li>{{ subfield }} {{ subfield.label }}</li>
+			    {% endfor %}
+			</ul>
+		    </li>
+		</ul>
+		<ul id="result" class="input">
+		    <li>Finding a route</li>
+		    <li>
+			<div class="spinner">
+			    <div class="bounce1"></div>
+			    <div class="bounce2"></div>
+			    <div class="bounce3"></div>
+			</div>
+		    </li>
+		</ul>
+		<p class="lead">
+		    <input class="btn btn-lg btn-default" type="submit" value="find another!">
+		</p>
+	    </form>
+
+	    <!-- <ul class="sidebar-nav">
+	     <li class="sidebar-brand">
+	     <a href="#">
+	     Start Bootstrap
+	     </a>
+	     </li>
+	     <li>		    <a href="#">Dashboard</a>		</li>
+	     <li>		    <a href="#">Shortcuts</a>		</li>
+	     <li>		    <a href="#">Overview</a>		</li>
+	     <li>		    <a href="#">Events</a>		</li>
+	     <li>		    <a href="#">About</a>		</li>
+	     <li>		    <a href="#">Services</a>		</li>
+	     <li>		    <a href="#">Contact</a>		</li>
+	     </ul> -->
+
+	</div>
+	<!-- /#sidebar-wrapper -->
+
 	<div class="site-wrapper-inner">
 
             <div class="masthead clearfix">
@@ -46,35 +98,6 @@
 		<div id="map"></div>
 
 		<div class="inner sidebox">
-		    <h1 class="cover-heading">runSmartr</h1>
-
-		    <!-- Form to input run parameters -->
-		    <form action="" method="post" name="input">
-			<ul class="input">
-			    <li>{{ form.address(size=30) }}</li><br>
-			    <li>{{ form.distance(size=4) }}</li>
-			    <li>
-				<ul class="inputunits">
-				    {% for subfield in form.units %}
-					<li>{{ subfield }} {{ subfield.label }}</li>
-				    {% endfor %}
-				</ul>
-			    </li>
-			</ul>
-			<ul id="result" class="input">
-			    <li>Finding a route</li>
-			    <li>
-				<div class="spinner">
-				    <div class="bounce1"></div>
-				    <div class="bounce2"></div>
-				    <div class="bounce3"></div>
-				</div>
-			    </li>
-			</ul>
-			<p class="lead">
-			    <input class="btn btn-lg btn-default" type="submit" value="find another!">
-			</p>
-		    </form>
 
 		</div>
 
