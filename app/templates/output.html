@@ -33,11 +33,13 @@
 	<!-- Sidebar -->
 	<div id="sidebar-wrapper">
 
-	    <h1 class="cover-heading">runSmartr</h1>
-
 	    <!-- Form to input run parameters -->
 	    <form action="" method="post" name="input">
-		<ul class="input">
+		<ul class="sidebar-nav">
+		    <li class = "sidebar-brand">
+			<a href="http://runsmartr.com/">runSmartr</a>
+		    </li>
+
 		    <li>{{ form.address(size=30) }}</li><br>
 		    <li>{{ form.distance(size=4) }}</li>
 		    <li>
@@ -47,36 +49,12 @@
 			    {% endfor %}
 			</ul>
 		    </li>
+		    <p class="lead">
+			<input class="btn btn-lg btn-default" type="submit" value="find another!">
+		    </p>
 		</ul>
-		<ul id="result" class="input">
-		    <li>Finding a route</li>
-		    <li>
-			<div class="spinner">
-			    <div class="bounce1"></div>
-			    <div class="bounce2"></div>
-			    <div class="bounce3"></div>
-			</div>
-		    </li>
-		</ul>
-		<p class="lead">
-		    <input class="btn btn-lg btn-default" type="submit" value="find another!">
-		</p>
 	    </form>
-
-	    <!-- <ul class="sidebar-nav">
-	     <li class="sidebar-brand">
-	     <a href="#">
-	     Start Bootstrap
-	     </a>
-	     </li>
-	     <li>		    <a href="#">Dashboard</a>		</li>
-	     <li>		    <a href="#">Shortcuts</a>		</li>
-	     <li>		    <a href="#">Overview</a>		</li>
-	     <li>		    <a href="#">Events</a>		</li>
-	     <li>		    <a href="#">About</a>		</li>
-	     <li>		    <a href="#">Services</a>		</li>
-	     <li>		    <a href="#">Contact</a>		</li>
-	     </ul> -->
+	    <!-- /form to input run parameters -->
 
 	</div>
 	<!-- /#sidebar-wrapper -->
@@ -86,6 +64,16 @@
             <div class="masthead clearfix">
 		<div class="inner">
 		    <nav>
+			<ul id="result" class="input">
+			    <li>Finding a route</li>
+			    <li>
+				<div class="spinner">
+				    <div class="bounce1"></div>
+				    <div class="bounce2"></div>
+				    <div class="bounce3"></div>
+				</div>
+			    </li>
+			</ul>
 			<ul class="nav masthead-nav">
 			    <li><a href="http://www.slideshare.net/AndyAlmandHunter/runsmartr-better-running-routes-through-data">Slides</a></li>
 			</ul>
@@ -94,13 +82,7 @@
             </div>
 
             <div class="cover-container">
-
 		<div id="map"></div>
-
-		<div class="inner sidebox">
-
-		</div>
-
             </div>
 	</div>
     </div>
