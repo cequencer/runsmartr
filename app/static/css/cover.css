@@ -8,6 +8,10 @@ a:focus,
 a:hover {
     color: #fff;
 }
+h1 > a:hover,
+h1 > a:focus {
+    text-decoration: none;
+}
 
 /* Custom default button */
 .btn-default,
@@ -60,6 +64,9 @@ a:hover {
 	transform: scale(1.0);
 	-webkit-transform: scale(1.0);
     }
+}
+#runscore-spinner {
+    display: none;
 }
 
 

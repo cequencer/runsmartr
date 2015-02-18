@@ -46,7 +46,9 @@
 		<div id="map"></div>
 
 		<div class="inner sidebox">
-		    <h1 class="cover-heading">runSmartr</h1>
+		    <h1 class="cover-heading">
+			<a href="/">runSmartr</a>
+		    </h1>
 
 		    <!-- Form to input run parameters -->
 		    <form action="" method="post" name="input">
@@ -74,6 +76,16 @@
 			<p class="lead">
 			    <input class="btn btn-lg btn-default" type="submit" value="find another!">
 			</p>
+			<ul class="input">
+			    <li><input type="checkbox" id="runscore-button">&nbsp;Show Run Score</li>
+			    <li id="runscore-spinner">
+				<div class="spinner">
+				    <div class="bounce1"></div>
+				    <div class="bounce2"></div>
+				    <div class="bounce3"></div>
+				</div>
+			    </li>
+			</ul>
 		    </form>
 
 		</div>
@@ -111,6 +123,31 @@
 	 return map
      }
 
+     function addRouteToMap(data, map){
+	 var route = $.parseJSON(data);
+	 $("#result").html(
+	     '<li>Here&#8217;s a ' + route.actual_distance + ' route.</li>'
+	 );
+	 L.polyline(route.route,{
+	     color: '#047',
+	     weight: 10,
+	     opacity: 1.0
+	 }).addTo(map);
+     }
+
+     function addRunScoreToMap(data, runscore, map){
+	 var runscore_data = $.parseJSON(data);
+	 $("#runscore-spinner").hide();
+	 var nEdges = runscore_data.length;
+	 for (var n = 0; n < nEdges; n++) {
+	     runscore.addLayer(L.polyline(runscore_data[n].edge,{
+		 color: '#c60',
+		 weight: runscore_data[n].weight,
+		 opacity: 1.0
+	     }));
+	 }
+     }
+
      $(document).ready(function(){
 	 sizeMap();
 	 $(window).resize(sizeMap);
@@ -121,17 +158,30 @@
 	     distance: {{ distance }},
 	     units: '{{ units }}'
 	 }, function(data) {
-	     var route = $.parseJSON(data)
-	     $("#result").html(
-		 '<li>Here&#8217;s a ' + route.actual_distance + ' route.</li>'
-	     );
-	     L.polyline(route.route,{
-		 color: '#047',
-		 weight: 8,
-		 opacity: 1.0
-	     }).addTo(map);
+	     addRouteToMap(data, map)
 	 });
-
+	 var runscore = L.layerGroup();
+	 var got_runscore = false
+	 $("#runscore-button").click(function() {
+	     if (!got_runscore) {
+		 $("#runscore-spinner").css('display', 'inline-block');
+		 $.post('/runscore',{
+		     address: '{{ address }}',
+		     distance: {{ distance }},
+		     units: '{{ units }}'
+		 }, function(data) {
+		     addRunScoreToMap(data, runscore, map)
+		 });
+		 got_runscore = true;
+	     }
+	     if(map.hasLayer(runscore)) {
+		 map.removeLayer(runscore);
+		 $("#runscore-button").attr('checked', false);
+	     } else {
+		 map.addLayer(runscore);        
+		 $("#runscore-button").attr('checked', true);
+	     }
+	 })
      });
 
     </script>

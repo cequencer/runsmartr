@@ -67,6 +67,11 @@ def run_route():
 
 @app.route('/runscore', methods=['POST'])
 def run_score():
+    address = request.form['address']
+    units = request.form['units']
+    fac_units = {'km': 1000.,
+                 'mi': 1608.}
+    distance = float(request.form['distance']) * fac_units[units]
     router = RunRouter(address, distance)
     foot_graph = router.data.foot_graph_latlon()
     run_score = [edge['run_score'] for edge in foot_graph]
@@ -75,3 +80,8 @@ def run_score():
     edges = [{'edge': edge['edge'],
               'weight': 1 + 9*(edge['run_score']-min_score) / (max_score-min_score)}
              for edge in foot_graph]
+    edges_json = '[' + ','.join(('{"edge":%s,"weight":%f}'
+        % (edge['edge'],
+           edge['weight']))
+        for edge in edges) + ']'
+    return edges_json
