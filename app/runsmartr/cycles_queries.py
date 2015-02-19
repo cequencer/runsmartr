@@ -5,8 +5,6 @@ import psycopg2
 import geopy.geocoders
 import json
 
-import pdb
-
 class CyclesDB:
 
     def __init__(self, address, distance):
@@ -29,8 +27,6 @@ class CyclesDB:
         return int(self._cur.fetchall()[0][0])
 
     def _get_foot_graph(self):
-        ''' Undirected networkx graph (Multigraph) of all foot ways.
-        '''
         radius = self.distance/2.
         G = nx.Graph()
         query = ("""
@@ -109,9 +105,6 @@ class CyclesDB:
         return self._cur.fetchall()[0][0]
 
     def detailed_path_latlon(self, nodes):
-        ''' Return list of (lat, lon) tuples including all intermediate points
-        along nodes list.
-        '''
         detailed_nodes_list = []
         node0 = nodes[0]
         for node in nodes[1:]:

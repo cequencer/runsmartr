@@ -24,19 +24,19 @@ def parse_osm():
 
 def add_routing_entry(rh_db, node, edge):
     query = """
-INSERT INTO rnodes (id, point)
-    SELECT nodes.id as id, geom AS point FROM nodes WHERE nodes.id = '%d';""" % node
+        INSERT INTO rnodes (id, point)
+            SELECT nodes.id as id, geom AS point FROM nodes WHERE nodes.id = '%d';""" % node
     rh_db.db_cur.execute(query)
     rh_db.db_conn.commit()
     query = """
-INSERT INTO routing (node, edges) VALUES ('%d', '{%d}')""" % (node, edge)
+        INSERT INTO routing (node, edges) VALUES ('%d', '{%d}')""" % (node, edge)
     rh_db.db_cur.execute(query)
     rh_db.db_conn.commit()
 
 def add_routing_edge(rh_db, node, edge):
     query = """
-UPDATE routing SET edges = edges || '{%d}'
-WHERE node = '%d';""" % (edge, node)
+        UPDATE routing SET edges = edges || '{%d}'
+        WHERE node = '%d';""" % (edge, node)
     rh_db.db_cur.execute(query)
     rh_db.db_conn.commit()
 
@@ -51,9 +51,9 @@ def get_nodes(rh_db, way):
 
 def get_foot_ways(rh_db, foot_way_types):
     query = """
-SELECT ways.id from ways, neighborhoods
-WHERE ST_Intersects(linestring, polygon)
-    AND tags->'highway' IN (%s);""" % (', '.join("'"+type+"'"
+        SELECT ways.id from ways, neighborhoods
+        WHERE ST_Intersects(linestring, polygon)
+            AND tags->'highway' IN (%s);""" % (', '.join("'"+type+"'"
         for type in foot_way_types))
     foot_ways = [int(way[0]) for way in rh_db.query_raw(query)]
     return foot_ways

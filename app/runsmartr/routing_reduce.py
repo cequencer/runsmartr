@@ -7,7 +7,7 @@ class routingReduce():
 
     def _get_edges(self, node):
         query = """
-SELECT edges FROM routing WHERE node = '%s';""" % node;
+            SELECT edges FROM routing WHERE node = '%s';""" % node;
         return [int(node) for node in self.db.query_raw(query)[0][0]]
 
     def _get_rnodes_not2(self):
@@ -15,47 +15,38 @@ SELECT edges FROM routing WHERE node = '%s';""" % node;
         two edges.
         '''
         query = """
-SELECT node
-    FROM routing
-    WHERE
-        array_length(edges, 1) >= 3 OR
-        array_length(edges, 1) = 1;"""
+            SELECT node
+                FROM routing
+                WHERE
+                    array_length(edges, 1) >= 3 OR
+                    array_length(edges, 1) = 1;"""
         return [int(node[0]) for node in self.db.query_raw(query)]
 
-    def _edge_strings(self, node, edge, nodes_along_edge):
-        edge_string = '%d, %d' % (node, edge)
+    def _edge_nodes_string(self, nodes_along_edge):
         edge_nodes_string = ', '.join(('%d' % n)
                                       for n in nodes_along_edge)
-        return edge_string, edge_nodes_string
+        return edge_nodes_string
 
-    def _row_exists(self, node, edge, nodes_along_edge):
-        edge_string, edge_nodes_string = self._edge_strings(
-            node, edge, nodes_along_edge)
-        query = """
-SELECT edge
-    FROM routing_edges
-    WHERE
-        edge = '{%s}' AND
-        edge_nodes = '{%s}';""" % (edge_string, edge_nodes_string)
-        exists_forward = self.db.query_raw(query) != []
-        edge_string, edge_nodes_string = self._edge_strings(
-            edge, node, nodes_along_edge[::-1])
-        query = """
-SELECT edge
-    FROM routing_edges
-    WHERE
-        edge = '{%s}' AND
-        edge_nodes = '{%s}';""" % (edge_string, edge_nodes_string)
-        exists_backward = self.db.query_raw(query) != []
-        return exists_backward or exists_forward
+    def _row_exists(self, nodes_along_edge):
+        edge_nodes_string = self._edge_nodes_string(
+            nodes_along_edge)
+        query = ("""
+            SELECT end1
+                FROM routing_edges
+                WHERE
+                    edge_nodes = '{%s}' OR
+                    edge_nodes = '{%s}';"""
+                 % (self._edge_nodes_string(nodes_along_edge),
+                    self._edge_nodes_string(nodes_along_edge[::-1])))
+        return self.db.query_raw(query) != []
 
     def _get_run_score(self, nodes):
         run_score = 0
         for node in nodes:
             query = """
-SELECT COUNT(*)
-    FROM mmf_routes_nodes
-    WHERE nodes @> ARRAY[%d::bigint];""" % node
+            SELECT COUNT(*)
+                FROM mmf_routes_nodes
+                WHERE nodes @> ARRAY[%d::bigint];""" % node
             run_score += self.db.query_raw(query)[0][0]
         return float(run_score)/len(nodes)
 
@@ -64,12 +55,12 @@ SELECT COUNT(*)
         n0 = nodes[0]
         for n1 in nodes[1:]:
             query = """
-SELECT ST_Distance(point_1::geography, point_2::geography)
-    FROM
-        (SELECT point AS point_1
-             FROM rnodes WHERE id = '%d') AS rnode_1,
-        (SELECT point AS point_2
-             FROM rnodes WHERE id = '%d') AS rnode_2;""" % (n0, n1)
+            SELECT ST_Distance(point_1::geography, point_2::geography)
+                FROM
+                    (SELECT point AS point_1
+                         FROM rnodes WHERE id = '%d') AS rnode_1,
+                    (SELECT point AS point_2
+                         FROM rnodes WHERE id = '%d') AS rnode_2;""" % (n0, n1)
             self.db.db_cur.execute(query)
             distance += self.db.db_cur.fetchall()[0][0]
             n0 = n1
@@ -78,17 +69,17 @@ SELECT ST_Distance(point_1::geography, point_2::geography)
     def _record_row(self, node, edge, nodes_along_edge):
         distance = self._get_distance(nodes_along_edge)
         run_score = self._get_run_score(nodes_along_edge)
-        edge_string, edge_nodes_string = self._edge_strings(
-            node, edge, nodes_along_edge)
-        query = """
-INSERT INTO routing_edges (edge, edge_nodes, distance, run_score)
-    VALUES ('{%s}', '{%s}', '%f', '%f');""" % (edge_string, edge_nodes_string,
-                                               distance, run_score)
+        edge_nodes_string = self._edge_nodes_string(
+            nodes_along_edge)
+        query = ("""
+            INSERT INTO routing_edges (end1, end2, edge_nodes, distance, run_score)
+                VALUES ('%d', '%d', '{%s}', '%f', '%f');"""
+                 % (node, edge, edge_nodes_string, distance, run_score))
         self.db.db_cur.execute(query)
         self.db.db_conn.commit()
 
     def _record_row_if_new(self, node, edge, nodes_along_edge):
-        if not self._row_exists(node, edge, nodes_along_edge):
+        if not self._row_exists(nodes_along_edge):
             self._record_row(node, edge, nodes_along_edge)
             print 'Added edge {%d, %d} to table' % (node, edge)
         else:

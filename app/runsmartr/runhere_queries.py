@@ -18,13 +18,13 @@ class RunHereDB:
         '''Get buffered highways.
         '''
         self.db_cur.execute("""
-SELECT ST_AsGeoJSON(the_geom) FROM highways_buffered;""")
+            SELECT ST_AsGeoJSON(the_geom) FROM highways_buffered;""")
         return self.db_cur.fetchone()[0]
 
     def fetch_valid_runs(self, table_name):
         query = """
-SELECT mmf_id FROM %s, highways_buffered
-WHERE ST_Within(linestring, the_geom);""" % (table_name,)
+            SELECT mmf_id FROM %s, highways_buffered
+            WHERE ST_Within(linestring, the_geom);""" % (table_name,)
         self.db_cur.execute(query)
         return self.db_cur.fetchall()
 
@@ -33,10 +33,10 @@ WHERE ST_Within(linestring, the_geom);""" % (table_name,)
         Return:  (centroid GeoJSON, linestring GeoJSON)
         '''
         self.db_cur.execute("""
-SELECT ST_AsGeoJSON(ST_Centroid(linestring)), ST_AsGeoJSON(linestring)
-FROM routes_potrero_hill, highways_buffered
-WHERE ST_Within(linestring, the_geom)
-LIMIT 1 OFFSET %s;""", (offset,))
+            SELECT ST_AsGeoJSON(ST_Centroid(linestring)), ST_AsGeoJSON(linestring)
+            FROM routes_potrero_hill, highways_buffered
+            WHERE ST_Within(linestring, the_geom)
+            LIMIT 1 OFFSET %s;""", (offset,))
         run = self.db_cur.fetchall()[0]
         return json.loads(run[0])['coordinates'][::-1], run[1]
 
@@ -45,8 +45,8 @@ LIMIT 1 OFFSET %s;""", (offset,))
         - Return point as GeoJSON string
         '''
         self.db_cur.execute("""
-SELECT ST_AsGeoJSON(geom) FROM nodes_highways
-WHERE id = '%s';""", (id,))
+            SELECT ST_AsGeoJSON(geom) FROM nodes_highways
+            WHERE id = '%s';""", (id,))
         return self.db_cur.fetchone()[0]
 
     def fetch_node_latlon(self, id):
@@ -54,8 +54,8 @@ WHERE id = '%s';""", (id,))
         - Return point as list(lat, lon)
         '''
         self.db_cur.execute("""
-SELECT ST_AsGeoJSON(geom) FROM nodes_highways
-WHERE id = '%s';""", (id,))
+            SELECT ST_AsGeoJSON(geom) FROM nodes_highways
+            WHERE id = '%s';""", (id,))
         return json.loads(
             self.db_cur.fetchone()[0])['coordinates'][::-1]
 
@@ -66,29 +66,29 @@ WHERE id = '%s';""", (id,))
           <point>
         '''
         self.db_cur.execute("""
-SELECT id FROM
-    (SELECT id FROM
-        nodes_highways,
-        (SELECT geom AS origin FROM nodes_highways WHERE id = '%s')
-            AS nodes_origin
-    ORDER BY ST_Distance(origin::geography, geom::geography)
-    LIMIT %s) AS knn
-ORDER BY RANDOM() LIMIT 1;""", (point, threshold))
+            SELECT id FROM
+                (SELECT id FROM
+                    nodes_highways,
+                    (SELECT geom AS origin FROM nodes_highways WHERE id = '%s')
+                        AS nodes_origin
+                ORDER BY ST_Distance(origin::geography, geom::geography)
+                LIMIT %s) AS knn
+            ORDER BY RANDOM() LIMIT 1;""", (point, threshold))
         return self.db_cur.fetchall()[0][0]
 
     def fetch_nearest_highway_node(self, lon, lat):
         self.db_cur.execute("""
-SELECT id FROM
-    nodes_highways
-ORDER BY geom <-> 'SRID=4326;POINT(%s %s)'::geometry
-LIMIT 1;""", (lon, lat))
+            SELECT id FROM
+                nodes_highways
+            ORDER BY geom <-> 'SRID=4326;POINT(%s %s)'::geometry
+            LIMIT 1;""", (lon, lat))
         return self.db_cur.fetchall()[0][0]
 
     def get_centroid(self, route):
         route_str = ', '.join("'"+str(el)+"'" for el in route)
         query = """
-SELECT ST_AsGeoJSON(ST_Centroid(ST_MakeLine(geom)))
-FROM nodes WHERE id IN (%s);""" % route_str
+            SELECT ST_AsGeoJSON(ST_Centroid(ST_MakeLine(geom)))
+            FROM nodes WHERE id IN (%s);""" % route_str
         self.db_cur.execute(query)
         route_centroid = json.loads(
             self.db_cur.fetchall()[0][0])['coordinates'][::-1]
@@ -99,9 +99,9 @@ FROM nodes WHERE id IN (%s);""" % route_str
         - points is a tuple (node_1_id, node_2_id)
         '''
         self.db_cur.execute("""
-SELECT ST_Distance(point_1, point_2) FROM
-    (SELECT geom::geography AS point_1 FROM nodes WHERE id = '%s') AS g_1,
-    (SELECT geom::geography AS point_2 FROM nodes WHERE id = '%s') AS g_2;""",
+            SELECT ST_Distance(point_1, point_2) FROM
+                (SELECT geom::geography AS point_1 FROM nodes WHERE id = '%s') AS g_1,
+                (SELECT geom::geography AS point_2 FROM nodes WHERE id = '%s') AS g_2;""",
         (points[0], points[1]))
         return self.db_cur.fetchall()
 
@@ -116,21 +116,22 @@ SELECT ST_Distance(point_1, point_2) FROM
         nearest_nodes_string = ', '.join("'"+('%d' % id)+"'"
             for id in nearest_nodes)
         query = """
-UPDATE nodes_highways_mmf_routes SET route_count = route_count + 1
-WHERE id IN (%s);""" % nearest_nodes_string
+            UPDATE nodes_highways_mmf_routes SET route_count = route_count + 1
+            WHERE id IN (%s);""" % nearest_nodes_string
         self.db_cur.execute(query)
         self.db_conn.commit()
         query = """
-UPDATE nodes_highways_mmf_routes SET routes = routes || '{%d}'
-WHERE id IN (%s);""" % (mmf_id, nearest_nodes_string)
+            UPDATE nodes_highways_mmf_routes SET routes = routes || '{%d}'
+            WHERE id IN (%s);""" % (mmf_id, nearest_nodes_string)
         self.db_cur.execute(query)
         self.db_conn.commit()
 
     def update_stats_route_nodes(self, mmf_id, nearest_nodes):
+
         nearest_nodes_string = "'{" + ', '.join(('%d' % id)
             for id in nearest_nodes) + "}'"
         query = """
-INSERT INTO mmf_routes_nodes
-VALUES (%d, %s);""" % (mmf_id, nearest_nodes_string)
+            INSERT INTO mmf_routes_nodes
+            VALUES (%d, %s);""" % (mmf_id, nearest_nodes_string)
         self.db_cur.execute(query)
         self.db_conn.commit()

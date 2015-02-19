@@ -1,7 +1,5 @@
 from cycles_queries import CyclesDB
 
-import pdb
-
 class RunRouter:
     ''' Find optimal closed route using SGD
     '''
@@ -24,11 +22,6 @@ class RunRouter:
         #     print 'step - score'
             
     def initialize_search(self):
-        '''Initialize Search
-        - Get control points
-        - Compute first route
-        - Store this route as minimum
-        '''
         G = self.data.foot_graph
         run_scores = [float(G.get_edge_data(u,v)['run_score']) for u,v in G.edges()]
         top_node = G.edges()[run_scores.index(max(run_scores))][0]
@@ -46,8 +39,6 @@ class RunRouter:
         self.current_cost = self.get_cost(self.current_route)
                 
     def get_route(self, nodes):
-        ''' Get route using start point and control points
-        '''
         graph_remaining = self.data.foot_graph.copy()
         route = []
         result, r = self.data.shortest_path(
@@ -104,20 +95,14 @@ class RunRouter:
         return nodes
 
     def get_cost(self, route):
-        ''' Compute cost function for current state in SGD search
-        - Cost = residual from target route length
-        '''
         return abs(self.get_route_length(route) - self.data.distance)
         
     def get_route_length(self, route):
-        ''' Get Route length
-        '''
         route_length = 0.
         try:
             node0 = route[0]
         except IndexError:
-            return 0.  # Bit of a hack, but this will force a new step in case
-                       # a bad route somehow gets to this point
+            return 0.
         for node in route[1:]:
             route_length += float(self.data.foot_graph[node0][node]['dist'])
             node0 = node

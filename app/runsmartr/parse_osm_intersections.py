@@ -28,32 +28,30 @@ def parse_osm_intersections_only():
         print 'Done with way %d of %d.' % (count, nways)
         count += 1
 
-# ------------------------------------------------------------------------------
 def add_routing_entry_int(rh_db, node, edge):
     query = """
-INSERT INTO rnodes_intersections (id, point)
-    SELECT nodes.id as id, geom AS point FROM nodes WHERE nodes.id = '%d';""" % node
+        INSERT INTO rnodes_intersections (id, point)
+            SELECT nodes.id as id, geom AS point FROM nodes WHERE nodes.id = '%d';""" % node
     rh_db.db_cur.execute(query)
     rh_db.db_conn.commit()
     query = """
-INSERT INTO routing_intersections (node, edges) VALUES ('%d', '{%d}')""" % (node, edge)
+        INSERT INTO routing_intersections (node, edges) VALUES ('%d', '{%d}')""" % (node, edge)
     rh_db.db_cur.execute(query)
     rh_db.db_conn.commit()
 
 def add_routing_edge_int(rh_db, node, edge):
     query = """
-UPDATE routing_intersections SET edges = edges || '{%d}'
-WHERE node = '%d';""" % (edge, node)
+        UPDATE routing_intersections SET edges = edges || '{%d}'
+        WHERE node = '%d';""" % (edge, node)
     rh_db.db_cur.execute(query)
     rh_db.db_conn.commit()
-# ------------------------------------------------------------------------------
 
 def get_nodes_intersections(rh_db, way):
     nodes = rh_db.query_raw("""
-SELECT way_nodes FROM
-    routing,
-    (SELECT unnest(nodes) AS way_nodes FROM ways WHERE id = %d) AS way_nodes_table
-WHERE node = way_nodes AND array_length(edges, 1) > 2;""" % (way,))
+        SELECT way_nodes FROM
+            routing,
+            (SELECT unnest(nodes) AS way_nodes FROM ways WHERE id = %d) AS way_nodes_table
+        WHERE node = way_nodes AND array_length(edges, 1) > 2;""" % (way,))
     return [int(n) for node in nodes for n in node]
 
 def get_node_routing_int(rh_db, node):
@@ -62,9 +60,9 @@ def get_node_routing_int(rh_db, node):
 
 def get_foot_ways(rh_db, foot_way_types):
     query = """
-SELECT ways.id from ways, neighborhoods
-WHERE ST_Intersects(linestring, polygon)
-    AND tags->'highway' IN (%s);""" % (', '.join("'"+type+"'"
+        SELECT ways.id from ways, neighborhoods
+        WHERE ST_Intersects(linestring, polygon)
+            AND tags->'highway' IN (%s);""" % (', '.join("'"+type+"'"
         for type in foot_way_types))
     foot_ways = [int(way[0]) for way in rh_db.query_raw(query)]
     return foot_ways
