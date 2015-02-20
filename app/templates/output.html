@@ -45,49 +45,52 @@
 
 		<div id="map"></div>
 
-		<div class="inner sidebox">
-		    <h1 class="cover-heading">
-			<a href="/">runSmartr</a>
-		    </h1>
+		<div class="sidebox-wrapper">
+		    <a href="#"><img id="collapse-button" src="../static/img/collapse-button.png"></a>
+		    <div class="inner sidebox">
+			<h1 class="cover-heading">
+			    <a href="/">runSmartr</a>
+			</h1>
 
-		    <!-- Form to input run parameters -->
-		    <form action="" method="post" name="input">
-			<ul class="input">
-			    <li>{{ form.address(size=30) }}</li><br>
-			    <li>{{ form.distance(size=4) }}</li>
-			    <li>
-				<ul class="inputunits">
-				    {% for subfield in form.units %}
-					<li>{{ subfield }} {{ subfield.label }}</li>
-				    {% endfor %}
-				</ul>
-			    </li>
-			</ul>
-			<ul id="result" class="input">
-			    <li>Finding a route</li>
-			    <li>
-				<div class="spinner">
-				    <div class="bounce1"></div>
-				    <div class="bounce2"></div>
-				    <div class="bounce3"></div>
-				</div>
-			    </li>
-			</ul>
-			<p class="lead">
-			    <input class="btn btn-lg btn-default" type="submit" value="find another!">
-			</p>
-			<ul class="input">
-			    <li><input type="checkbox" id="runscore-button">&nbsp;Show Run Score</li>
-			    <li id="runscore-spinner">
-				<div class="spinner">
-				    <div class="bounce1"></div>
-				    <div class="bounce2"></div>
-				    <div class="bounce3"></div>
-				</div>
-			    </li>
-			</ul>
-		    </form>
+			<!-- Form to input run parameters -->
+			<form action="" method="post" name="input">
+			    <ul class="input">
+				<li>{{ form.address(size=30) }}</li><br>
+				<li>{{ form.distance(size=4) }}</li>
+				<li>
+				    <ul class="inputunits">
+					{% for subfield in form.units %}
+					    <li>{{ subfield }} {{ subfield.label }}</li>
+					{% endfor %}
+				    </ul>
+				</li>
+			    </ul>
+			    <ul id="result" class="input">
+				<li>Finding a route</li>
+				<li>
+				    <div class="spinner">
+					<div class="bounce1"></div>
+					<div class="bounce2"></div>
+					<div class="bounce3"></div>
+				    </div>
+				</li>
+			    </ul>
+			    <p class="lead">
+				<input class="btn btn-lg btn-default" type="submit" value="find another!">
+			    </p>
+			    <ul class="input">
+				<li><input type="checkbox" id="runscore-button">&nbsp;Show Run Score</li>
+				<li id="runscore-spinner">
+				    <div class="spinner">
+					<div class="bounce1"></div>
+					<div class="bounce2"></div>
+					<div class="bounce3"></div>
+				    </div>
+				</li>
+			    </ul>
+			</form>
 
+		    </div>
 		</div>
 
             </div>
@@ -148,6 +151,27 @@
 	 }
      }
 
+     function handleRunScoreButton(got_runscore, runscore, map){
+	 if (!got_runscore) {
+	     $("#runscore-spinner").css('display', 'inline-block');
+	     $.post('/runscore',{
+		 address: '{{ address }}',
+		 distance: {{ distance }},
+		 units: '{{ units }}'
+	     }, function(data) {
+		 addRunScoreToMap(data, runscore, map)
+	     });
+	     got_runscore = true;
+	 }
+	 if(map.hasLayer(runscore)) {
+	     map.removeLayer(runscore);
+	     $("#runscore-button").attr('checked', false);
+	 } else {
+	     map.addLayer(runscore);        
+	     $("#runscore-button").attr('checked', true);
+	 }
+     }
+
      $(document).ready(function(){
 	 sizeMap();
 	 $(window).resize(sizeMap);
@@ -161,27 +185,13 @@
 	     addRouteToMap(data, map)
 	 });
 	 var runscore = L.layerGroup();
-	 var got_runscore = false
+	 var got_runscore = false;
 	 $("#runscore-button").click(function() {
-	     if (!got_runscore) {
-		 $("#runscore-spinner").css('display', 'inline-block');
-		 $.post('/runscore',{
-		     address: '{{ address }}',
-		     distance: {{ distance }},
-		     units: '{{ units }}'
-		 }, function(data) {
-		     addRunScoreToMap(data, runscore, map)
-		 });
-		 got_runscore = true;
-	     }
-	     if(map.hasLayer(runscore)) {
-		 map.removeLayer(runscore);
-		 $("#runscore-button").attr('checked', false);
-	     } else {
-		 map.addLayer(runscore);        
-		 $("#runscore-button").attr('checked', true);
-	     }
-	 })
+	     handleRunScoreButton(got_runscore, runscore, map);
+	 });
+	 $("#collapse-button").click(function() {
+	     $("div.sidebox").children().toggle();
+	 });
      });
 
     </script>

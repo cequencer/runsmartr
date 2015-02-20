@@ -88,26 +88,26 @@
     
     <script type="text/javascript">
 
-function sizeMap(){
-    $("#map").height($("body").height());
-}
+     function sizeMap(){
+	 $("#map").height($("body").height());
+     }
 
-function addMap(lat, lon, zoom){
-    L.mapbox.accessToken = 'pk.eyJ1IjoiYW5keWFsbWFuZGh1bnRlciIsImEiOiJLOUh5aS1vIn0.zFS519161_PwwjqlyMWezA';
-    var map = L.mapbox.map('map', 'andyalmandhunter.l52ai08p', {
-        zoomControl: false
-    }).setView([lat, lon], zoom);
-    map.addControl(
-        L.control.zoom().setPosition('bottomleft')
-    );
-}
+     function addMap(lat, lon, zoom){
+	 L.mapbox.accessToken = 'pk.eyJ1IjoiYW5keWFsbWFuZGh1bnRlciIsImEiOiJLOUh5aS1vIn0.zFS519161_PwwjqlyMWezA';
+	 var map = L.mapbox.map('map', 'andyalmandhunter.l52ai08p', {
+             zoomControl: false
+	 }).setView([lat, lon], zoom);
+	 map.addControl(
+             L.control.zoom().setPosition('bottomleft')
+	 );
+     }
 
-$(document).ready(function(){
-    sizeMap();
-    $(window).resize(sizeMap);
-    addMap(37.765, -122.436, 13)
-    $("#address").geocomplete();
-});
+     $(document).ready(function(){
+	 sizeMap();
+	 $(window).resize(sizeMap);
+	 addMap(37.765, -122.436, 13)
+	     $("#address").geocomplete();
+     });
 
     </script>
 

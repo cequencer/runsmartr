@@ -204,15 +204,22 @@ result > li + li {
  * Map
  */
 
-.sidebox {
-    text-align: left;
-    display: table;
+.sidebox-wrapper {
     position: absolute;
     top: 67px;
     left: 0;
+}
+.sidebox {
+    text-align: left;
+    display: table;
     padding: 20px 20px;
     background-color: #047;
     box-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+#collapse-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
 
 
@@ -264,8 +271,10 @@ result > li + li {
     .cover-container {
 	width: 100%; /* Must be percentage or pixels for horizontal alignment */
     }
-    .sidebox {
+    .sidebox-wrapper {
 	left: 27px;
+    }
+    .sidebox {
 	border-radius: 10px;
     }
     .masthead-nav > li > a {
