@@ -6,8 +6,6 @@ import networkx as nx
 from app.runsmartr.credentials import cred
 import geopy.geocoders
 
-import pdb
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def run_input():
@@ -56,13 +54,13 @@ def run_route():
     distance = float(request.form['distance']) * fac_units[units]
     router = RunRouter(address, distance)
     router.do_route()
-    route = router.data.detailed_path_latlon(router.current_route)
+    route, lat0, lon0, lat1, lon1 = router.data.detailed_path_latlon(router.current_route)
     route_length = (router.get_route_length(router.current_route) /
                     fac_units[units])
     units_str = {'km': 'km',
                  'mi': 'mile'}
-    route_json = ('{"actual_distance":"%.1f %s","route":%s}'
-                  % (route_length, units_str[units], route))
+    route_json = ('{"actual_distance":"%.1f %s","route":%s,"lat0":%f,"lon0":%f,"lat1":%f,"lon1":%f}'
+                  % (route_length, units_str[units], route, lat0, lon0, lat1, lon1))
     return route_json
 
 @app.route('/runscore', methods=['POST'])

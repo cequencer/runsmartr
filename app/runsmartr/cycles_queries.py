@@ -112,7 +112,10 @@ class CyclesDB:
             node0 = node
         detailed_nodes_latlon = [self._node_latlon(node)
                                  for node in detailed_nodes_list]
-        return detailed_nodes_latlon
+        lat_list, lon_list = zip(*detailed_nodes_latlon)
+        lat0, lon0 = min(lat_list), min(lon_list)
+        lat1, lon1 = max(lat_list), max(lon_list)
+        return detailed_nodes_latlon, lat0, lon0, lat1, lon1
 
     def foot_graph_latlon(self):
         radius = self.distance/2.

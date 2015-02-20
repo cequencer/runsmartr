@@ -19,6 +19,9 @@
     <!-- Styles for Mapbox.js map -->
     <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.css" rel="stylesheet" />
 
+    <!-- Icon font -->
+    <link rel="stylesheet" href="../static/css/font-awesome.min.css">
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
 	 <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -36,6 +39,7 @@
 		    <nav>
 			<ul class="nav masthead-nav">
 			    <li><a href="http://www.slideshare.net/AndyAlmandHunter/runsmartr-better-running-routes-through-data">Slides</a></li>
+			    <li><a href="https://github.com/andyalmandhunter/runsmartr"><i class="fa fa-github"></i></a></li>
 			</ul>
 		    </nav>
 		</div>
@@ -46,7 +50,6 @@
 		<div id="map"></div>
 
 		<div class="sidebox-wrapper">
-		    <a href="#"><img id="collapse-button" src="../static/img/collapse-button.png"></a>
 		    <div class="inner sidebox">
 			<h1 class="cover-heading">
 			    <a href="/">runSmartr</a>
@@ -91,6 +94,9 @@
 			</form>
 
 		    </div>
+		    <a href="#"><div id="collapse-button">
+			<span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span>
+		    </div></a>
 		</div>
 
             </div>
@@ -136,6 +142,10 @@
 	     weight: 10,
 	     opacity: 1.0
 	 }).addTo(map);
+	 map.fitBounds([
+	     [route.lat0, route.lon0],
+	     [route.lat1, route.lon1]
+	 ]);
      }
 
      function getRunScore(runscore, map){
@@ -177,10 +187,23 @@
 	 return got_runscore;
      }
 
+     function collapseButton(){
+	 this.collapsed = false;
+	 this.toggle = function() {
+	     if (this.collapsed == false) {
+		 this.collapsed = true;
+		 $("#collapse-button > span").removeClass("glyphicon-menu-up").addClass("glyphicon-menu-down");
+	     } else {
+		 this.collapsed = false;
+		 $("#collapse-button > span").removeClass("glyphicon-menu-down").addClass("glyphicon-menu-up");
+	     }
+	 };
+     }
+
      $(document).ready(function(){
 	 sizeMap();
 	 $(window).resize(sizeMap);
-	 var map = addMap({{ center_latlon }}, 14);
+	 var map = addMap({{ center_latlon }}, 17);
          $("#address").geocomplete();
 	 $.post('/route',{
 	     address: '{{ address }}',
@@ -191,11 +214,13 @@
 	 });
 	 var runscore = L.layerGroup();
 	 var got_runscore = false;
+	 var collapse_button = new collapseButton();
 	 $("#runscore-button").click(function() {
 	     got_runscore = handleRunScoreButton(got_runscore, runscore, map);
 	 });
 	 $("#collapse-button").click(function() {
 	     $("div.sidebox").children().toggle();
+	     collapse_button.toggle();
 	 });
      });
 
