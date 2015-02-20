@@ -123,7 +123,7 @@
 	 }).setView([lat, lon], zoom);
 	 L.control.zoom().setPosition('bottomleft').addTo(map);
 	 L.marker([{{ center_latlon }}]).addTo(map)
-	 return map
+	     return map;
      }
 
      function addRouteToMap(data, map){
@@ -136,6 +136,17 @@
 	     weight: 10,
 	     opacity: 1.0
 	 }).addTo(map);
+     }
+
+     function getRunScore(runscore, map){
+	 $("#runscore-spinner").css('display', 'inline-block');
+	 $.post('/runscore',{
+	     address: '{{ address }}',
+	     distance: {{ distance }},
+	     units: '{{ units }}'
+	 }, function(data) {
+	     addRunScoreToMap(data, runscore, map)
+	 });
      }
 
      function addRunScoreToMap(data, runscore, map){
@@ -153,14 +164,7 @@
 
      function handleRunScoreButton(got_runscore, runscore, map){
 	 if (!got_runscore) {
-	     $("#runscore-spinner").css('display', 'inline-block');
-	     $.post('/runscore',{
-		 address: '{{ address }}',
-		 distance: {{ distance }},
-		 units: '{{ units }}'
-	     }, function(data) {
-		 addRunScoreToMap(data, runscore, map)
-	     });
+	     getRunScore(runscore, map);
 	     got_runscore = true;
 	 }
 	 if(map.hasLayer(runscore)) {
@@ -170,6 +174,7 @@
 	     map.addLayer(runscore);        
 	     $("#runscore-button").attr('checked', true);
 	 }
+	 return got_runscore;
      }
 
      $(document).ready(function(){
@@ -187,7 +192,7 @@
 	 var runscore = L.layerGroup();
 	 var got_runscore = false;
 	 $("#runscore-button").click(function() {
-	     handleRunScoreButton(got_runscore, runscore, map);
+	     got_runscore = handleRunScoreButton(got_runscore, runscore, map);
 	 });
 	 $("#collapse-button").click(function() {
 	     $("div.sidebox").children().toggle();
