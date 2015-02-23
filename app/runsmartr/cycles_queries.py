@@ -5,6 +5,8 @@ import psycopg2
 import geopy.geocoders
 import json
 
+import pdb
+
 class CyclesDB:
 
     def __init__(self, address, distance):
@@ -74,6 +76,16 @@ class CyclesDB:
         self._cur.execute(query)
         return json.loads(self._cur.fetchone()[0])['coordinates'][::-1]
 
+    def _nodes_distance(self, node0, node1):
+        query = ("""
+            SELECT ST_Distance(point0::geography, point1::geography)
+                FROM
+                    (SELECT point AS point0 FROM rnodes WHERE id = '%d') AS rnode0,
+                    (SELECT point AS point1 FROM rnodes WHERE id = '%d') AS rnode1;"""
+                 % (node0, node1))
+        self._cur.execute(query)
+        return self._cur.fetchone()[0]
+
     def shortest_path(self, node1, node2, G):
         try:
             path = nx.shortest_path(G, source=node1, target=node2, weight='dist')
@@ -103,6 +115,36 @@ class CyclesDB:
                  % (m*(rnd()-0.5) / 89012., m*(rnd()-0.5) / 110978., rnode))
         self._cur.execute(query)
         return self._cur.fetchall()[0][0]
+
+    def detailed_path_latlon_milemarkers(self, nodes):
+        distance = 0.
+        current_milemarker = 0.
+        detailed_nodes_list = []
+        node0 = nodes[0]
+        for node in nodes[1:]:
+            detailed_nodes_list += self._detailed_nodes_for_edge(node0, node)
+            node0 = node
+        node0 = detailed_nodes_list[0]
+        detailed_nodes_latlon = [self._node_latlon(detailed_nodes_list[0])]
+        milemarkers_latlon = []
+        for node in detailed_nodes_list[1:]:
+            detailed_nodes_latlon.append(self._node_latlon(node))
+            delta = self._nodes_distance(node0, node)
+            distance += delta
+            if distance >= current_milemarker:
+                lat0, lon0 = detailed_nodes_latlon[-2]
+                lat1, lon1 = detailed_nodes_latlon[-1]
+                overshoot = distance - current_milemarker
+                lat_milemarker = lat1 - (lat1-lat0) * overshoot/distance
+                lon_milemarker = lon1 - (lon1-lon0) * overshoot/distance
+                milemarkers_latlon.append([lat_milemarker, lon_milemarker])
+                current_milemarker += 1608.
+                print '%f --> %f' % (current_milemarker, distance)
+            node0 = node
+        lat_list, lon_list = zip(*detailed_nodes_latlon)
+        lat0, lon0 = min(lat_list), min(lon_list)
+        lat1, lon1 = max(lat_list), max(lon_list)
+        return detailed_nodes_latlon, lat0, lon0, lat1, lon1, milemarkers_latlon
 
     def detailed_path_latlon(self, nodes):
         detailed_nodes_list = []

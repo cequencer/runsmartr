@@ -128,8 +128,8 @@
              zoomControl: false
 	 }).setView([lat, lon], zoom);
 	 L.control.zoom().setPosition('bottomleft').addTo(map);
-	 L.marker([{{ center_latlon }}]).addTo(map)
-	     return map;
+	 L.marker([{{ center_latlon }}]).addTo(map);
+	 return map;
      }
 
      function addRouteToMap(data, map){
@@ -142,6 +142,16 @@
 	     weight: 10,
 	     opacity: 1.0
 	 }).addTo(map);
+	 nMilemarkers = route.milemarkers.length;
+	 for (var n = 0; n < nMilemarkers; n++) {
+	     L.marker(route.milemarkers[n], {
+		 icon: L.divIcon({
+		     className: 'milemarker',
+		     html: '<p>' + n + '</p>',
+		     iconSize: [21, 21]
+		 })
+	     }).addTo(map);
+	 }
 	 map.fitBounds([
 	     [route.lat0, route.lon0],
 	     [route.lat1, route.lon1]
@@ -155,7 +165,7 @@
 	     distance: {{ distance }},
 	     units: '{{ units }}'
 	 }, function(data) {
-	     addRunScoreToMap(data, runscore, map)
+	     addRunScoreToMap(data, runscore, map);
 	 });
      }
 

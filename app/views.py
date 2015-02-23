@@ -54,13 +54,13 @@ def run_route():
     distance = float(request.form['distance']) * fac_units[units]
     router = RunRouter(address, distance)
     router.do_route()
-    route, lat0, lon0, lat1, lon1 = router.data.detailed_path_latlon(router.current_route)
+    route, lat0, lon0, lat1, lon1, milemarkers = router.data.detailed_path_latlon_milemarkers(router.current_route)
     route_length = (router.get_route_length(router.current_route) /
                     fac_units[units])
     units_str = {'km': 'km',
                  'mi': 'mile'}
-    route_json = ('{"actual_distance":"%.1f %s","route":%s,"lat0":%f,"lon0":%f,"lat1":%f,"lon1":%f}'
-                  % (route_length, units_str[units], route, lat0, lon0, lat1, lon1))
+    route_json = ('{"actual_distance":"%.1f %s","route":%s,"lat0":%f,"lon0":%f,"lat1":%f,"lon1":%f,"milemarkers":%s}'
+                  % (route_length, units_str[units], route, lat0, lon0, lat1, lon1, milemarkers))
     return route_json
 
 @app.route('/runscore', methods=['POST'])
