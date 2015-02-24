@@ -7,19 +7,10 @@ class RunRouter:
         self.data = CyclesDB(address, distance)
 
     def do_route(self, threshold=800.):
-
-        # (1) Start out in distance-finding mode; get within 0.5mi of correct
-        #     distance without worrying about run_score.
-        # (2) Once within distance threshold, never allow distance cost to
-        #     exceed threshold again
-
         self.initialize_search()
         while self.current_cost > threshold:
             self.step_distance()
             print 'step - distance'
-        # while :
-        #     self.step_score()
-        #     print 'step - score'
             
     def initialize_search(self):
         G = self.data.foot_graph

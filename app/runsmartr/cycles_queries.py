@@ -5,8 +5,6 @@ import psycopg2
 import geopy.geocoders
 import json
 
-import pdb
-
 class CyclesDB:
 
     def __init__(self, address, distance):
@@ -116,7 +114,7 @@ class CyclesDB:
         self._cur.execute(query)
         return self._cur.fetchall()[0][0]
 
-    def detailed_path_latlon_milemarkers(self, nodes):
+    def detailed_path_latlon_milemarkers(self, nodes, fac_units):
         distance = 0.
         current_milemarker = 0.
         detailed_nodes_list = []
@@ -138,8 +136,7 @@ class CyclesDB:
                 lat_milemarker = lat1 - (lat1-lat0) * overshoot/distance
                 lon_milemarker = lon1 - (lon1-lon0) * overshoot/distance
                 milemarkers_latlon.append([lat_milemarker, lon_milemarker])
-                current_milemarker += 1608.
-                print '%f --> %f' % (current_milemarker, distance)
+                current_milemarker += fac_units
             node0 = node
         lat_list, lon_list = zip(*detailed_nodes_latlon)
         lat0, lon0 = min(lat_list), min(lon_list)

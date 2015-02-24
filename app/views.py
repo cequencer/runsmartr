@@ -54,7 +54,7 @@ def run_route():
     distance = float(request.form['distance']) * fac_units[units]
     router = RunRouter(address, distance)
     router.do_route()
-    route, lat0, lon0, lat1, lon1, milemarkers = router.data.detailed_path_latlon_milemarkers(router.current_route)
+    route, lat0, lon0, lat1, lon1, milemarkers = router.data.detailed_path_latlon_milemarkers(router.current_route, fac_units[units])
     route_length = (router.get_route_length(router.current_route) /
                     fac_units[units])
     units_str = {'km': 'km',
