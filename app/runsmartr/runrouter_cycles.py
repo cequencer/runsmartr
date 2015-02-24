@@ -3,6 +3,7 @@ from cycles_queries import CyclesDB
 class RunRouter:
     ''' Find optimal closed route using SGD
     '''
+
     def __init__(self, address, distance):
         self.data = CyclesDB(address, distance)
 

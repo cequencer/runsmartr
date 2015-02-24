@@ -95,7 +95,7 @@
 
 		    </div>
 		    <a href="#"><div id="collapse-button">
-			<span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span>
+			<i class="fa fa-caret-up"></i>
 		    </div></a>
 		</div>
 
@@ -202,10 +202,10 @@
 	 this.toggle = function() {
 	     if (this.collapsed == false) {
 		 this.collapsed = true;
-		 $("#collapse-button > span").removeClass("glyphicon-menu-up").addClass("glyphicon-menu-down");
+		 $("#collapse-button > i").removeClass("fa-caret-up").addClass("fa-caret-down");
 	     } else {
 		 this.collapsed = false;
-		 $("#collapse-button > span").removeClass("glyphicon-menu-down").addClass("glyphicon-menu-up");
+		 $("#collapse-button > i").removeClass("fa-caret-down").addClass("fa-caret-up");
 	     }
 	 };
      }
