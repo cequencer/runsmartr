@@ -5,7 +5,7 @@ import psycopg2
 import geopy.geocoders
 import json
 
-class CyclesDB:
+class RunRouterData:
 
     def __init__(self, address, distance):
         self._db_conn = psycopg2.connect(**cred['db'])
@@ -91,18 +91,6 @@ class CyclesDB:
             return 'failed', []
         return 'success', path
 
-    def straight_line_dist(self, node1, node2):
-        query = ("""
-            SELECT ST_Distance(point_1::geography, point_2::geography)
-                FROM
-                    (SELECT point AS point_1
-                        FROM rnodes WHERE id = '%d') AS rnode_1,
-                    (SELECT point AS point_2
-                        FROM rnodes WHERE id = '%d') AS rnode_2;"""
-                 % (node1, node2))
-        self._cur.execute(query)
-        return self._cur.fetchone()[0]
-
     def rand_rnode_within_m(self, rnode, m):
         query = ("""
             SELECT id FROM
@@ -142,19 +130,6 @@ class CyclesDB:
         lat0, lon0 = min(lat_list), min(lon_list)
         lat1, lon1 = max(lat_list), max(lon_list)
         return detailed_nodes_latlon, lat0, lon0, lat1, lon1, milemarkers_latlon
-
-    def detailed_path_latlon(self, nodes):
-        detailed_nodes_list = []
-        node0 = nodes[0]
-        for node in nodes[1:]:
-            detailed_nodes_list += self._detailed_nodes_for_edge(node0, node)
-            node0 = node
-        detailed_nodes_latlon = [self._node_latlon(node)
-                                 for node in detailed_nodes_list]
-        lat_list, lon_list = zip(*detailed_nodes_latlon)
-        lat0, lon0 = min(lat_list), min(lon_list)
-        lat1, lon1 = max(lat_list), max(lon_list)
-        return detailed_nodes_latlon, lat0, lon0, lat1, lon1
 
     def foot_graph_latlon(self):
         radius = self.distance/2.

@@ -16,7 +16,7 @@ def run_input():
                         distance=form.distance.data,
                         units=form.units.data))
     form.distance.data = ''
-    return render_template('base.html',
+    return render_template('input.html',
                            form=form)
 
 @app.route('/run', methods=['GET', 'POST'])
