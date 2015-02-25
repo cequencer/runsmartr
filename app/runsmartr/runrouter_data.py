@@ -91,16 +91,23 @@ class RunRouterData:
             return 'failed', []
         return 'success', path
 
-    def rand_rnode_within_m(self, rnode, m):
-        query = ("""
-            SELECT id FROM
-                (SELECT ST_Translate(point, %f, %f) AS search_point
-                 FROM rnodes_intersections WHERE id = '%d') AS rnode,
-                rnodes_intersections
-            ORDER BY search_point <-> point LIMIT 1;"""
-                 % (m*(rnd()-0.5) / 89012., m*(rnd()-0.5) / 110978., rnode))
+    def rand_rnode_within_n(self, rnode, n):
+        query = """
+            WITH nearest_rnodes AS
+                (SELECT id
+                    FROM
+                        rnodes_intersections, 
+                        (SELECT point AS point0
+                            FROM rnodes_intersections
+                            WHERE id = '%d') as point0_table
+                    ORDER BY point <-> point0
+                    LIMIT %d)
+            SELECT id
+                FROM nearest_rnodes
+                ORDER BY RANDOM()
+                LIMIT 1;""" % (rnode, n)
         self._cur.execute(query)
-        return self._cur.fetchall()[0][0]
+        return self._cur.fetchone()[0]
 
     def detailed_path_latlon_milemarkers(self, nodes, fac_units):
         distance = 0.

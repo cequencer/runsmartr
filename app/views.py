@@ -1,7 +1,7 @@
 from flask import render_template, redirect, request, url_for
 from app import app
 from .forms import InputForm
-from app.runsmartr.runrouter_cycles import RunRouter
+from app.runsmartr.runrouter import RunRouter
 import networkx as nx
 from app.runsmartr.credentials import cred
 import geopy.geocoders
@@ -53,7 +53,7 @@ def run_route():
                  'mi': 1608.}
     distance = float(request.form['distance']) * fac_units[units]
     router = RunRouter(address, distance)
-    router.do_route()
+    router.find_route()
     route, lat0, lon0, lat1, lon1, milemarkers = router.data.detailed_path_latlon_milemarkers(router.current_route, fac_units[units])
     route_length = (router.get_route_length(router.current_route) /
                     fac_units[units])
