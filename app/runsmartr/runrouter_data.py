@@ -41,7 +41,8 @@ class RunRouterData:
                     ST_Dwithin(origin.point::geography, point2::geography, %f);"""
                  % (self.start_node, radius, radius))
         self._cur.execute(query)
-        G.add_edges_from([[int(node[0]), int(node[1]), {'dist': node[2], 'run_score': node[3]}]
+        G.add_edges_from([[int(node[0]), int(node[1]),
+                           {'dist': node[2], 'run_score': node[3]}]
                           for node in self._cur.fetchall()])
         G_cycles = nx.Graph()
         for cycle in nx.cycle_basis(G):
