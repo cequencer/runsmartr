@@ -5,6 +5,8 @@ import psycopg2
 import geopy.geocoders
 import json
 
+import pdb
+
 class RunRouterData:
 
     def __init__(self, address, distance):
@@ -18,11 +20,25 @@ class RunRouterData:
         self.foot_graph = self._get_foot_graph()
 
     def _get_start_node(self):
+        return self.nearest_rnode(*self.start)
+
+    def nearest_rnode(self, lat, lon):
         query = ("""
             SELECT id
                 FROM rnodes_intersections
                 ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326)
-                LIMIT 1;""" % self.start[::-1])
+                LIMIT 1;""" % (lon, lat))
+        self._cur.execute(query)
+        return int(self._cur.fetchall()[0][0])
+
+    def nearest_accessible_rnode(self, lat, lon):
+        query = ("""
+            SELECT id
+                FROM rnodes_intersections
+                WHERE id IN (%s)
+                ORDER BY point <-> ST_SetSRID(ST_MakePoint(%f, %f), 4326)
+                LIMIT 1;""" % (','.join(str(n) for n in self.foot_graph.node.keys()),
+                               lon, lat))
         self._cur.execute(query)
         return int(self._cur.fetchall()[0][0])
 
@@ -67,14 +83,6 @@ class RunRouterData:
         else:
             return nodes[::-1]
 
-    def _node_latlon(self, node):
-        query = """
-            SELECT ST_AsGeoJSON(point)
-                FROM rnodes
-                WHERE id = '%d'""" % node
-        self._cur.execute(query)
-        return json.loads(self._cur.fetchone()[0])['coordinates'][::-1]
-
     def _nodes_distance(self, node0, node1):
         query = ("""
             SELECT ST_Distance(point0::geography, point1::geography)
@@ -84,6 +92,14 @@ class RunRouterData:
                  % (node0, node1))
         self._cur.execute(query)
         return self._cur.fetchone()[0]
+
+    def rnode_latlon(self, node):
+        query = """
+            SELECT ST_AsGeoJSON(point)
+                FROM rnodes
+                WHERE id = '%d'""" % node
+        self._cur.execute(query)
+        return json.loads(self._cur.fetchone()[0])['coordinates'][::-1]
 
     def shortest_path(self, node1, node2, G):
         try:
@@ -102,7 +118,7 @@ class RunRouterData:
                             FROM rnodes_intersections
                             WHERE id = '%d') as point0_table
                     ORDER BY point <-> point0
-                    LIMIT %d)
+                    LIMIT %d OFFSET 1)
             SELECT id
                 FROM nearest_rnodes
                 ORDER BY RANDOM()
@@ -119,10 +135,10 @@ class RunRouterData:
             detailed_nodes_list += self._detailed_nodes_for_edge(node0, node)
             node0 = node
         node0 = detailed_nodes_list[0]
-        detailed_nodes_latlon = [self._node_latlon(detailed_nodes_list[0])]
+        detailed_nodes_latlon = [self.rnode_latlon(detailed_nodes_list[0])]
         milemarkers_latlon = []
         for node in detailed_nodes_list[1:]:
-            detailed_nodes_latlon.append(self._node_latlon(node))
+            detailed_nodes_latlon.append(self.rnode_latlon(node))
             delta = self._nodes_distance(node0, node)
             distance += delta
             if distance >= current_milemarker:
